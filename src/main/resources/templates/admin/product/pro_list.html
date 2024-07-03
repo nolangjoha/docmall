@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+				layout:decorate="~{admin/layout/adminlayout}"> 
+ 
+      
+
+    <th:block layout:fragment = "content">
+        <script src="/plugins/ckeditor/ckeditor.js"></script>
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+          <!-- Content Header (Page header) -->
+          <section class="content-header">
+            <h1>
+              Page Header
+              <small>Optional description</small>
+            </h1>
+            <ol class="breadcrumb">
+              <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+              <li class="active">Here</li>
+            </ol>
+          </section>
+
+          <!-- Main content -->
+          <section class="content">
+
+              <!-- Your Page Content Here -->
+              <div calss="row">
+                <div class="col">
+
+                  <div class="box box-info">
+                    <div class="box-header with-border">
+                      <h3 class="box-title">Horizontal Form</h3>
+                    </div><!-- /.box-header -->
+                    <!-- form start -->
+                    
+        <div class="row">
+    		<div class="col-md-12">
+    			<div class="box">
+					<div class="box-header with-border">
+					<h3 class="box-title">Product List</h3>
+					</div>
+
+					<div class="box-body">
+						<div>
+							<form action="/admin/product/pro_list" method="get" >
+									<select name="type">
+										<option selected>검색종류선택</option>
+										<option value="N">상품명</option>
+										<option value="C">상품코드</option>
+										<option value="P">제조사</option>
+										<option value="NP">상품명 or 제조사</option>
+									</select>
+									<input type="text" name="keyword" th:value="${pageMaker.cri.keyword}" />
+									<input type="hidden" name="pageNum" th:value="${pageMaker.cri.pageNum}" />
+									<input type="hidden" name="amount" th:value="${pageMaker.cri.amount}" />
+									<button type="submit" class="btn btn-primary">검색</button>
+							</form>
+						</div>
+						<table class="table table-bordered">
+							<tbody><tr>
+							    <th style="width: 2%"><input type="checkbox" id="checkAll"></th>
+								<th style="width: 8%">상품코드</th>
+								<th style="width: 25%">상품명</th>
+								<th style="width: 10%">가격</th>
+								<th style="width: 20%">등록일</th>
+								<th style="width: 15%">판매여부</th>
+								<th style="width: 10%">수정</th>
+								<th style="width: 10%">삭제</th>
+							</tr>
+							
+							<tr th:each="product : ${pro_list}">
+								<td><input type="checkbox" name="check" th:value="${product.pro_num }"></td>
+								<td>[[${product.pro_num}]]</td>
+								<td>
+									<!-- /admin/product/imageDisplay?dateFolderName=값1&?fileName=값2 -->
+									<a class="move" href="#">
+									<img th:src="${'/admin/product/image_display?dateFolderName=' + product.pro_up_folder + '&fileName=s_' + product.pro_img}">
+									</a>
+									<a class="move pro_name" href="#" th:text="${product.pro_name}"></a>
+								</td>
+								<td><input type="text" name="pro_price" th:value="${product.pro_price }"></td>
+								<td th:text="${#dates.format(product.pro_date, 'yyyy-MM-dd HH:mm:ss')}"></td>
+								<td>
+									<select id="pro_buy" name="pro_buy">
+										<option value="Y" th:selected="${product.pro_buy == 'Y'}">판매가능</option>
+										<option value="N" th:selected="${product.pro_buy == 'N'}">판매불가능</option>
+									</select>
+								</td>
+								<td><button type="button" class="btn btn-primary" name="btn_pro_edit" th:data-pro_num="${product.pro_num}">수정</button></td>
+								<td><button type="button" class="btn btn-danger" name="btn_pro_del" th:data-pro_num="${product.pro_num}">삭제</button></td>
+							</tr>
+				
+							</tbody></table>
+					</div>
+					<div class="box-footer clearfix">
+						<div class="row">
+							<div class="col-md-4">
+								<button type="button" class="btn btn-primary" id="btn_check_modify1" role="button">체크상품수정1</button>	
+                				<button type="button" class="btn btn-primary" id="btn_check_modify2" role="button">체크상품수정2</button>	
+							<!-- Criteria.java클래스 필드사용 목적으로 액션폼 만듬. -->
+							<!--1)페이지번호 클릭할 때 사용  [이전]  1	2	3	4	5 [다음]  -->
+							<!--2)목록에서 상품이미지 또는 상품명 클릭할 때 사용   -->
+							  <form id="actionForm" action="" method="get">
+								<input type="hidden" name="pageNum" id="pageNum" th:value="${pageMaker.cri.pageNum}" />
+								<input type="hidden" name="amount"  id="amount" th:value="${pageMaker.cri.amount}" />
+								<input type="hidden" name="type" id="type" th:value="${pageMaker.cri.type}" />
+								<input type="hidden" name="keyword" id="keyword" th:value="${pageMaker.cri.keyword}" />
+							  </form>
+							</div>
+							<div class="col-md-6 text-center">
+								<nav aria-label="...">
+								<ul class="pagination">
+									<!-- 이전 표시여부 -->
+									<th:block th:if="${pageMaker.prev }">
+										<li class="page-item">
+											<a th:href="${pageMaker.startPage - 1 }" class="page-link movepage">Previous</a>
+										</li>
+									</th:block>	
+									<!-- 페이지번호 출력 -->
+									<!-- 1	2	3	4	5 6	7	8	9	10  [다음] -->
+									<!-- [이전] 11	12	13	14	15 16	17	18	19	20   -->
+									
+									<th:block th:with="pageMaker = ${pageMaker}">										
+										<th:block th:each="num : *{#numbers.sequence(pageMaker.startPage, pageMaker.endPage)}">
+											<li class='page-item' th:classappend="${pageMaker.cri.pageNum ==  num ? 'active': '' }" aria-current="page">
+												<a class="page-link movepage" th:href="${num }" th:text="${num }"></a>
+											</li>
+										</th:block>
+									</th:block>	
+										
+									
+									<!--  다음 표시여부 -->
+									<th:block th:if="${pageMaker.next }">
+										<li class="page-item">
+										<a th:href="${pageMaker.endPage + 1 }" class="page-link movepage" href="#">Next</a>
+										</li>
+									</th:block>
+									
+								</ul>
+								</nav>
+							</div>
+							<div class="col-md-2 text-right"><a th:href="@{/admin/product/pro_insert}" class="btn btn-primary" id="btn_pro_insert">상품등록</a></div>
+						</div>
+						
+					</div>
+			   </div>
+    		</div>
+    	</div>
+                    
+                    
+	              </div>
+	          	</div>
+	          </div>
+
+          </section><!-- /.content -->
+        </div><!-- /.content-wrapper -->
+    </th:block>
+
+    <th:block layout:fragment = "script">
+    <script>
+
+      $(document).ready(function() {
+        //1차카테고리 선택
+        $("#btn_firstCategory").on("change", function() {
+          
+          let cat_code = $("#btn_firstCategory").val();
+
+//          console.log("cat_code",cat_code);
+          // 2차카테고리 주소
+          let url = "/admin/category/secondcategory/" + cat_code;
+
+          $.getJSON(url, function(secondcategory_result) {
+            let btn_secondCategory = $("#btn_secondCategory"); // 2차카테고리 select태그를 참조
+            let optionStr = "";
+
+            for(let i=0; i<secondcategory_result.length; i++) {
+              optionStr += "<option value='" + secondcategory_result[i].cat_code + "'>" + secondcategory_result[i].cat_name + "</option>";
+            }
+
+            btn_secondCategory.find("option").remove();
+            btn_secondCategory.append("<option>2차카테고리 선택</option>");
+            btn_secondCategory.append(optionStr);
+          });
+
+        });
+
+	    
+
+	  //액션폼은 여러군데에서 접근해야 하니 전역으로 뺀다.
+      let actionForm = $("#actionForm");
+
+
+	  // 페이지 클릭시. 이전 1 2 3 4 5 다음
+	  //아이디가 아니라 클래스를 참조하므로 #이 아닌 .을 쓴다.
+	  $(".movepage").on("click", function(e) {
+				  
+	   e.preventDefault(); // a태그의 href 기능제거.
+		
+		actionForm.attr("action", "/admin/product/pro_list"); // 액션폼 주소변경
+
+		actionForm.find("input[name='pageNum']").val($(this).attr("href"));  //클릭한 페이지 번호 작업
+
+		actionForm.submit();
+		
+	  });
+
+	  //수정버튼 클릭시 name="btn_pro_edit"
+	  $("button[name='btn_pro_edit']").on("click", function(e) {
+		let pro_num = $(this).data("pro_num");  // 수정버튼에 있던 상품번호
+
+		//뒤로 버튼 클릭시 사용 되어 문제일으킴 방지 목적.
+		actionForm.find("input[name='pro_num']").remove();
+
+
+		//console.log("상품코드", pro_num); //네트워크 콘솔에서 확인할 수 있다.
+
+		// 1) 자바스크립트 문법 (String template문법) : 벡틱의 문자열과 변수를 함께 사용 가능한 문법. // +로 연결 문자를 안써도 되는 장점.
+		 let str = `<input type="hidden" name="pro_num" id="pro_num" th:value="${pro_num}" />`;
+		//console.log(str);
+		
+		// 2) 자바스크립트 덧셈 연결문법 : 
+		actionForm.append(`<input type="hidden" name="pro_num" id="pro_num" value="${pro_num}" />`);
+		
+		actionForm.attr("method", "get");
+		actionForm.attr("action", "/admin/product/pro_edit");
+
+		actionForm.submit();
+
+      });
+ 	    
+
+	  //삭제버튼 클릭시 name="btn_pro_del"
+	  $("button[name='btn_pro_del']").on("click", function(e) {
+		
+		//사용자가 취소를 누르면 false로 해석, 
+		if(!confirm("상품을 삭제하겠습니까?")) return;
+		
+		
+		let pro_num = $(this).data("pro_num");  // 상품번호 받아오기
+
+		//뒤로 버튼 클릭시 사용 되어 문제일으킴 방지 목적.
+		actionForm.find("input[name='pro_num']").remove();
+
+
+		//console.log("상품코드", pro_num); //네트워크 콘솔에서 확인할 수 있다.
+
+		// 1) 자바스크립트 문법 (String template문법) : 벡틱의 문자열과 변수를 함께 사용 가능한 문법. // +로 연결 문자를 안써도 되는 장점.
+		 let str = `<input type="hidden" name="pro_num" id="pro_num" th:value="${pro_num}" />`;
+		//console.log(str);
+		
+		// 2) 자바스크립트 덧셈 연결문법 : 
+		actionForm.append(`<input type="hidden" name="pro_num" id="pro_num" value="${pro_num}" />`);
+		
+		actionForm.attr("method", "post");
+		actionForm.attr("action", "/admin/product/pro_delete");
+
+		actionForm.submit();
+
+      });
+
+	  // 제목행 checkBox 체크하기 - 체크박스 활용 일괄 수정 기능
+	  let isCheck = true;
+	  $("#checkAll").on("click", function() {
+
+		// this.checked : 제목의 checked상태를 의미
+		//전체 체크버튼을 클릭하면 리스트의 모든 항목이 체크되는 기능
+		$("input[name='check']").prop("checked", this.checked);
+		isCheck = this.checked;
+	  });
+
+	  // 목록에서 데이터행 체크하기
+	  $("input[name='check']").on("click", function() {
+		$("#checkAll").prop("checked", this.checked);
+
+		$("input[name='check']").each(function() {
+			if(!$(this).is(":checked")) {
+				$("#checkAll").prop("checked", false);
+			}
+		});
+	  });
+
+	  //체크 수정상품1  id="btn_check_modify1"
+	  $("#btn_check_modify1").on("click", function() {
+		//체크한건만 인식하게 됨.
+		//체크한 갯수가 0이면 경고창 출력
+		if($("input[name='check']:checked").length == 0) {
+			alert("수정할 상품을 체크하세요.");
+			return;
+		}
+		
+		//each로 늘린 name=check 체크박스에는 상품코드를 숨겨놨다. 
+		//"자바스크립트 배열 문법"으로 수정할 값들을 배열로 만들어 보낼 것이다.
+		let pro_num_arr = []; //배열문법 초기설정 // 체크된 상품코드들이 저장될 배열
+		let pro_price_arr = []; //체크된 상품가격들이 저장될 배열 
+		let pro_buy_arr = []; // 체크된 상품 진열정보들이 저장될 배열  Y,N 
+
+		//체크된 상태를 접근
+		//제이쿼리 each는 for문과 같다.
+		$("input[name='check']:checked").each(function() {
+			pro_num_arr.push($(this).val());
+			pro_price_arr.push($(this).parent().parent().find("input[name='pro_price']").val());  //html dom문법
+			pro_buy_arr.push($(this).parent().parent().find("select[name='pro_buy']").val());   
+		});
+
+				//중간단계 확인
+			console.log("상품코드:" + pro_num_arr);
+			console.log("상품가격:" + pro_price_arr);
+			console.log("상품진열:" + pro_buy_arr);
+
+			$.ajax({
+				url: '/admin/product/pro_checked_modify1',
+				type: 'post',
+				data: {pro_num_arr : pro_num_arr, pro_price_arr : pro_price_arr, pro_buy_arr : pro_buy_arr}, 
+				dataType: 'text',
+				success : function(result) {
+					if(result == 'success') {
+						alert("체크상품이 수정되었습니다.");
+					}
+				}
+			});
+		});
+
+
+	  //체크 수정상품2  id="btn_check_modify2"
+	  $("#btn_check_modify2").on("click", function() {
+		//체크한건만 인식하게 됨.
+		//체크한 갯수가 0이면 경고창 출력
+		if($("input[name='check']:checked").length == 0) {
+			alert("수정할 상품을 체크하세요.");
+			return;
+		}
+		
+		//each로 늘린 name=check 체크박스에는 상품코드를 숨겨놨다. 
+		//"자바스크립트 배열 문법"으로 수정할 값들을 배열로 만들어 보낼 것이다.
+		let pro_num_arr = []; //배열문법 초기설정 // 체크된 상품코드들이 저장될 배열
+		let pro_price_arr = []; //체크된 상품가격들이 저장될 배열 
+		let pro_buy_arr = []; // 체크된 상품 진열정보들이 저장될 배열  Y,N 
+
+		//체크된 상태를 접근
+		//제이쿼리 each는 for문과 같다.
+		$("input[name='check']:checked").each(function() {
+			pro_num_arr.push($(this).val());
+			pro_price_arr.push($(this).parent().parent().find("input[name='pro_price']").val());  //html dom문법
+			pro_buy_arr.push($(this).parent().parent().find("select[name='pro_buy']").val());   
+		});
+
+				//중간단계 확인
+			console.log("상품코드:" + pro_num_arr);
+			console.log("상품가격:" + pro_price_arr);
+			console.log("상품진열:" + pro_buy_arr);
+
+			$.ajax({
+				url: '/admin/product/pro_checked_modify2',
+				type: 'post',
+				data: {pro_num_arr : pro_num_arr, pro_price_arr : pro_price_arr, pro_buy_arr : pro_buy_arr},
+				//    {변수명 : 값, 변수명 : 값, 변수명 : 값} , 변수명은 우리 맘대로 해도 상관 없음. 스프링에서 쓰임.
+				dataType: 'text',
+				success: function(result) {
+					if(result == 'success') {
+						alert("체크상품이 수정되었습니다.");
+					}
+				}
+			});
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+	  });
+
+
+
+
+
+	    
+    }); //ready event end
+
+
+
+
+    </script>
+    </th:block>
+  
+</html>

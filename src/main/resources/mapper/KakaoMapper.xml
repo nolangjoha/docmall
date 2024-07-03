@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.docmall.basic.kakaologin.KakaoMapper">
+	
+	<!--kakao_tbl, id, nickname, email  -->
+	
+	<!-- [카카오 정보 존재유무] -->
+	<select id="existsKakaoInfo" resultType="com.docmall.basic.kakaologin.KakaoUserInfo">
+		SELECT
+			id, nickname, email
+		FROM
+			kakao_tbl
+		WHERE
+			email = #{sns_email}
+	</select>
+
+
+	<!-- [카카오 계정 DB추가] -->
+	<insert id="kakao_insert" parameterType="com.docmall.basic.kakaologin.KakaoUserInfo">
+		INSERT INTO
+			kakao_tbl(id, nickname, email)
+		VALUES
+			(#{id}, #{nickname}, #{email})
+	</insert>
+
+
+</mapper>

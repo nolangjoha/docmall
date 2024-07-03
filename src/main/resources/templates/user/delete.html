@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+				layout:decorate="~{/layout/baselayout}">  <!-- 레이아웃 상속 -->
+
+<body>
+
+<th:block layout:fragment="content">  <!-- 해당 태그 내 부분 빼고 다 재정의 되니까 이 태그 내부만 바꿔주면 다양한 페이지를 얻을 수 있다. -->  
+<!--
+mbsp_id, mbsp_name, mbsp_email, mbsp_password, mbsp_zipcode, mbsp_addr, 
+mbsp_deaddr, mbsp_phone, mbsp_nick, mbsp_receive, mbsp_point, mbsp_lastlogin, mbsp_datesub, mbsp_updatedate
+-->
+<!-- --u_id, u_pwd, u_name, u_email, u_zip_code, u_addr, u_addrdetail, u_phone, u_regdate  -->
+<!-- U_ID, U_PWD, U_NAME, U_EMAIL, U_ZIP_CODE, U_ADDR, U_ADDRDETAIL, U_PHONE, U_REGDATE -->
+	
+	<!----------->
+
+	<!-- Begin page content -->
+		<main role="main" class="flex-shrink-0">
+		  <div class="container">
+		    <h1 class="mt-5 mb-4 text-center">회원탈퇴</h1>
+		    <div class="row">
+
+
+		        <div class="col-4">
+		            <section th:replace="~{user/comm/mypage_menu}"></section>
+		        </div>
+		        
+				<div class="col-8">
+	
+		            <form class="form-horizontal" id="deleteForm" th:action="@{/user/delete}" method="post">
+		                <div class="card-body">
+		
+		                    <div class="form-group row">
+		                        <label for="mbsp_password" class="col-sm-6 col-form-label">현재 비밀번호</label>
+		                        <div class="col-sm-6">
+		                            <input type="password" class="form-control" id="mbsp_password" name="mbsp_password">
+		                        </div>
+		                    </div>
+
+		                </div>
+		                
+		                <div class="card-footer">   
+		                    <button type="button" class="btn btn-danger btn-block" id="btnDelete">회원탈퇴</button>
+		                </div>
+		            
+		            </form> 
+
+
+
+        		</div>		
+
+
+			</div>
+			<div th:replace ="~{layout/comm/footer :: footerFragment}"></div>
+		</div>
+	</main>
+	
+</th:block>
+
+
+
+<th:block layout:fragment = "script">
+    
+	<script th:inline="javascript">
+
+
+	let msg = [[${mag}]];
+		if(msg = "failPW") {
+			alert("비밀번호를 확인해주세요.");
+		}
+		
+		
+		<!--[제이쿼리사용]-->
+		
+			$(document).ready(function(){  
+			
+				// [회원탈퇴 변경버튼 클릭]
+			$("#btnDelete").on("click", function(){
+					if($("#mbsp_password").val() == "") {
+						alert("현재비밀번호를 입력하세요.");
+						$("#mbsp_password").focus();
+						return;
+					}
+						
+					$("#deleteForm").submit();
+				});     
+		
+			}); //ready event end
+	</script>
+	
+	
+	
+</th:block>
+
+</body>
+</html>

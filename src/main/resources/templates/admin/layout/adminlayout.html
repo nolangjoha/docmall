@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+                xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head th:insert = "~{admin/layout/comm/plugin_1}">
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+    <div class="wrapper">    
+        <!-- Main Header -->
+        <header th:replace="~{admin/layout/comm/header}"></header>
+
+        <!-- Left side column. contains the logo and sidebar -->
+        <aside th:replace="~{admin/layout/comm/nav}"></aside>
+
+        <th:block layout:fragment = "content">
+        <!-- 각각의 페이지에서 구현하고자 하는 컨텐츠를 작성 -->
+        <!-- layout 단어가 들어가는 부분은 재정의 하는 부분이다.-->
+        </th:block>
+
+        <footer th:replace="~{admin/layout/comm/footer}"></footer>
+
+        <aside th:replace="~{admin/layout/comm/aside}"></aside>
+    
+    </div><!-- ./wrapper -->
+
+        <th:block th:replace="~{admin/layout/comm/plugin_2}"></th:block>  
+
+
+        <th:block layout:fragment = "script">
+        <!--각각의 페이지에서 필요한 자바사크립트 작성-->  
+        <!-- layout 단어가 들어가는 부분은 재정의 하는 부분이다.-->
+        </th:block>
+
+    
+
+</body>
+</html>

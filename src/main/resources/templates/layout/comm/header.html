@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="headerFragment" class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+  <h5 class="my-0 mr-md-auto font-weight-normal"><a th:href="@{/}">DocMall</a></h5>
+  <nav class="my-2 my-md-0 mr-md-3">
+
+    <!--공통-->
+    <th:block th:if="${session.login_status == null and session.kakao_status == null and session.naver_status == null}">
+      <a class="p-2 text-dark" th:href="@{/user/login}">로그인</a>
+      <a class="p-2 text-dark" th:href="@{/user/join}">회원가입</a>
+    </th:block>
+
+    <!--일반로그인-->
+    <th:block th:if="${session.login_status != null}">
+      <span th:text="${session.login_status.mbsp_name}"></span>
+      <span>[[ ${session.login_status.mbsp_email} ]]</span>
+      <a class="p-2 text-dark" th:href="@{/user/logout}">로그아웃</a>
+    </th:block>
+    
+    <!--카카오 로그인 -->
+    <th:block th:if="${session.kakao_status != null}">
+    	<a class="p-2 text-dark" th:href="@{/oauth2/kakaologout}">로그아웃</a>
+    </th:block>
+
+    <!-- 네이버 로그인 -->
+    <th:block th:if="${session.naver_status != null}">
+    	<a class="p-2 text-dark" th:href="@{/oauth2/naverlogout}">로그아웃</a>
+    </th:block>
+
+
+    <a class="p-2 text-dark" th:href="@{/user/mypage}">마이페이지</a>  
+    <a class="p-2 text-dark" href="#">주문정보</a>  <!-- th:href="@{#}" 이라 해놓으면 에러발생하므로 잠시 원본상태로 둠.-->
+    <a class="p-2 text-dark" href="#">장바구니</a>
+  </nav>
+</div>
+
+</html>

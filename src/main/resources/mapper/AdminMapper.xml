@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.docmall.basic.admin.AdminMapper">
+	
+	<!-- admin_tbl, admin_id, admin_pw, admin_visit_date -->
+	
+	<!-- 관리자 로그인 / 비밀번호가 암호화 되어 있기 때문에 같이 비교할 수 없다.-->
+	<select id="loginOk" parameterType="String" resultType="com.docmall.basic.admin.AdminVO">
+		SELECT
+			admin_id, admin_pw, admin_visit_date
+		FROM
+			admin_tbl
+		WHERE
+			admin_id = #{admin_id}
+	</select>
+	
+
+
+
+</mapper>

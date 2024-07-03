@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+
+           <section>
+               <h1>mypage</h1>  <!-- 여기 왼쪽 단락도 나중에 include로 처리 할 수 있다.-->
+               <div>
+                   <a class="dropdown-item" th:href="@{/user/mypage}">내 정보</a>
+                   <a class="dropdown-item" th:href="@{/user/changepw}">비밀번호 변경</a>
+                   <a class="dropdown-item" th:href="@{/user/delete}">회원탈퇴</a>
+               </div>
+           </section>
+
+
+</html>

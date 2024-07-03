@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+				layout:decorate="~{/layout/baselayout}">  <!-- 레이아웃 상속 -->
+
+<body>
+
+<th:block layout:fragment="content">  <!-- 해당 태그 내 부분 빼고 다 재정의 되니까 이 태그 내부만 바꿔주면 다양한 페이지를 얻을 수 있다. -->  
+<!--
+mbsp_id, mbsp_name, mbsp_email, mbsp_password, mbsp_zipcode, mbsp_addr, 
+mbsp_deaddr, mbsp_phone, mbsp_nick, mbsp_receive, mbsp_point, mbsp_lastlogin, mbsp_datesub, mbsp_updatedate
+-->
+<!-- --u_id, u_pwd, u_name, u_email, u_zip_code, u_addr, u_addrdetail, u_phone, u_regdate  -->
+<!-- U_ID, U_PWD, U_NAME, U_EMAIL, U_ZIP_CODE, U_ADDR, U_ADDRDETAIL, U_PHONE, U_REGDATE -->
+	
+	<!----------->
+
+	<!-- Begin page content -->
+		<main role="main" class="flex-shrink-0">
+		  <div class="container">
+		    <h1 class="mt-5 mb-4 text-center">비밀번호 변경</h1>
+		    <div class="row">
+
+
+		        <div class="col-4">
+		            <section th:replace="~{user/comm/mypage_menu}"></section>
+		        </div>
+		        
+				<div class="col-8">
+	
+		            <form class="form-horizontal" id="changePwForm" th:action="@{/user/changepw}" method="post">
+		                <div class="card-body">
+		
+		                    <div class="form-group row">
+		                        <label for="cur_mbsp_pwd" class="col-sm-6 col-form-label">현재 비밀번호</label>
+		                        <div class="col-sm-6">
+		                            <input type="password" class="form-control" id="cur_mbsp_pwd" name="cur_mbsp_pwd">
+		                        </div>
+		                    </div>
+		                    <div class="form-group row">
+		                        <label for="new_mbsp_pwd" class="col-sm-6 col-form-label">신규 비밀번호</label>
+		                        <div class="col-sm-6">
+		                            <input type="password" class="form-control" id="new_mbsp_pwd" name="new_mbsp_pwd">
+		                        </div>
+		                    </div>
+		                    <div class="form-group row">
+		                        <label for="new_mbsp_pwd_2" class="col-sm-6 col-form-label">비밀번호 확인</label>
+		                        <div class="col-sm-6">
+		                            <input type="password" class="form-control" id="new_mbsp_pwd_2" name="new_mbsp_pwd_2">
+		                        </div>
+		                    </div>
+		
+		                </div>
+		                
+		                <div class="card-footer">   <!-- id="btnJoin" -->
+		                    <button type="button" class="btn btn-info btn-block" id="btnChangePw">비밀번호 변경</button>
+		                </div>
+		            
+		            </form> 
+
+
+
+        		</div>		
+
+
+			</div>
+			<div th:replace ="~{layout/comm/footer :: footerFragment}"></div>
+		</div>
+	</main>
+	
+	
+
+	
+	
+</th:block>
+
+
+
+<th:block layout:fragment = "script">
+		 <!--[제이쿼리사용]-->
+	<script>
+	    $(document).ready(function(){  
+	    
+	        // [비밀번호 변경버튼 클릭]
+	       $("#btnChangePw").on("click", function(){
+	            if($("#cur_mbsp_pwd").val() == "") {
+	                alert("현재비밀번호를 입력하세요.");
+	                $("#cur_mbsp_pwd").focus();
+	                return;
+	            }
+	
+	            if($("#new_mbsp_pwd").val() == "") {
+	                alert("신규 비밀번호를 입력하세요.");
+	                $("#new_mbsp_pwd").focus();
+	                return;
+	            }
+	
+	            if($("#new_mbsp_pwd_2").val() == "") {
+	                alert("비밀번호 확인을 입력하세요.");
+	                $("#new_mbsp_pwd_2").focus();
+	                return;
+	            }
+	
+	            if($("#new_mbsp_pwd").val() != $("#new_mbsp_pwd_2").val()) {
+	                alert("신규 비밀번호가 일치하지 않습니다.");
+	                $("#new_mbsp_pwd_2").focus();
+	                $("#new_mbsp_pwd_2").val("");
+	                return;
+	            }
+	
+
+	            
+	            $("#changePwForm").submit();
+	        });     
+	
+	    });  //ready event end
+	</script>
+	
+	
+	<!-- 비밀번호수정 성공 메세지 -->
+	<script th:inline="javascript">
+	    let msg = [[${msg}]];
+	    if(msg == 'success') {
+	        alert("비밀번호가 변경되었습니다..");
+	    }else if(msg == "failPW") {
+	        alert("현재 비밀번호를 확인해주세요.");
+	    }
+	</script>
+	  
+  
+</th:block>
+
+</body>
+</html>

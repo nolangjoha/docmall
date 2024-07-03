@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.docmall.basic.admin.product.AdminProductMapper">
+
+	<!-- [상품등록] -->
+	<insert id="pro_insert" parameterType="com.docmall.basic.admin.product.AdminProductMapper">
+	
+		INSERT INTO
+			product_tbl(pro_num, cat_code, pro_name, pro_price, pro_discount, pro_publisher, pro_content, pro_up_folder, pro_img, pro_amount, pro_buy)
+		VALUES
+			(seq_pro_num.NEXTVAL, #{cat_code}, #{pro_name}, #{pro_price}, #{pro_discount}, #{pro_publisher}, #{pro_content}, #{pro_up_folder}, #{pro_img}, #{pro_amount}, #{pro_buy})	
+		
+	
+	</insert>
+
+
+	<!-- ex05 mapper.xml에서 가져와서 여기 프로젝트에 맞게 수정-->
+	<!-- 검색조건(2곳에서 사용/목록: listWithPaging, 총데이터 개수: getTotalCount) 따로 만듬 -->
+	<!-- 검색종류(제목 또는 작성자 또는 내용) 선택. "T","W","C" -->
+	<sql id="criteria">
+		<trim prefix= "(" suffix=") AND" prefixOverrides="OR" >
+			<!-- 페이지에서 들어온 검색옵션과 검색내용은 각각 Criteria클래스의 type와 keyword로 들어간다. 여기 아래에서 해당 변수를 가져올땐 getter로 사용한다.
+				 롬복으로 Criteria의 getter를 사용하고 있었는데 그것과 별개로 원하는 기능(typeArr)의 getter을 만들어주자.-->
+			<!-- 중복검색기능이 없었으면 아래 foreach구문은 안들어 갔음. -->
+			<!-- 상품명, 제조사, 가격 검색 등 -->
+			<foreach collection="typeArr" item="type"> <!-- typeArr라고 쓰면 getTypeArr메서드로 인식된다. 값이 3번(T,W,C) 들어오므로 3번 작동된다. -->
+				<trim prefix="OR">
+					<choose>
+						<when test="type == 'N'.toString()">
+							pro_name like '%' || #{keyword} || '%'					
+						</when>
+						<when test="type == 'P'.toString()">
+							pro_publisher like '%' || #{keyword} || '%'
+						</when>
+						<when test="type == 'C'.toString()">
+							pro_content like '%' || #{keyword} || '%'
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>
+	</sql>
+	
+	<!-- ex05 mapper.xml에서 가져와서 여기 프로젝트에 맞게 수정 -->
+	<!-- 공통사항: 검색조건 추가 -->
+	<select id="pro_list" resultType="com.docmall.basic.admin.product.ProductVo" parameterType="com.docmall.basic.common.dto.Criteria">
+		SELECT  
+			pro_num, cat_code, pro_name, pro_price, pro_discount, pro_publisher, pro_content, pro_up_folder, pro_img, pro_amount, pro_buy, pro_date, pro_updatedate
+		FROM (
+	    	SELECT /*+ INDEX_DESC(product_tbl PK_PRO_NUM) */
+	        	ROWNUM AS RN, pro_num, cat_code, pro_name, pro_price, pro_discount, pro_publisher, pro_content, pro_up_folder, pro_img, pro_amount, pro_buy, pro_date, pro_updatedate
+	    	FROM 
+	        	product_tbl 
+	    	WHERE 
+	    	<include refid="criteria"></include>
+	    <![CDATA[
+	    	ROWNUM <= (#{pageNum} * #{amount}) 
+	    ]]>
+	    	)
+		WHERE 
+			RN > (#{pageNum} - 1) * #{amount} 
+			
+	</select> 		<!-- #{pageNum} 쓸땐 변수명을 썼지만 get메서드가 작동되고 있다. -->
+
+	<!-- ex05 mapper.xml에서 가져와서 여기 프로젝트에 맞게 수정 -->
+	<!-- 공통사항: 검색조건 추가 -->
+	<select id="getTotalCount" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			product_tbl
+		WHERE
+			<include refid="criteria"></include> <!-- 사용자가 검색을 사용하지 않으면 값이 넘어오지 않아 이 구문 자체가 생성되지 않는다. 그럼 where절까지만 작성디고 끊기는데 그럼 에러 발생함. -->
+	    	pro_num > 0 	<!-- bno > 0을 쓰면 위 구문이 생성되지 않아도 에러가 발생하지 않는다. -->
+	</select>
+
+
+	<!-- [상품수정 페이지] -->
+	<select id="pro_edit" resultType="com.docmall.basic.admin.product.ProductVo" parameterType="Integer">
+		SELECT
+			pro_num, cat_code, pro_name, pro_price, pro_discount, pro_publisher, pro_content, pro_up_folder, pro_img, pro_amount, pro_buy, pro_date, pro_updatedate
+		FROM
+			product_tbl
+		WHERE
+			pro_num = #{pro_num}
+	</select>
+
+	<!-- [상품수정기능] -->
+	<update id="pro_edit_ok" parameterType="com.docmall.basic.admin.product.ProductVo">
+		UPDATE
+			product_tbl
+		SET
+			cat_code = #{cat_code},
+			pro_name = #{pro_name}, 
+			pro_price = #{pro_price}, 
+			pro_discount = #{pro_discount}, 
+			pro_publisher = #{pro_publisher}, 
+			pro_content = #{pro_content}, 
+			pro_up_folder = #{pro_up_folder}, 
+			pro_img = #{pro_img}, 
+			pro_amount = #{pro_amount}, 
+			pro_buy = #{pro_buy}, 
+			pro_updatedate = sysdate
+		WHERE
+			pro_num = #{pro_num}
+	</update>
+
+	<!-- [상품삭제기능] -->
+	<delete id="pro_delete" parameterType="Integer">
+		DELETE FROM
+			product_tbl
+		WHERE
+			pro_num = #{pro_num}
+	</delete>
+
+	<!-- [체크상품 수정작업1] -->
+	<update id="pro_checked_modify1" parameterType="map">
+		UPDATE 
+			product_tbl
+		SET
+			pro_price = #{pro_price}, pro_buy = #{pro_buy}
+		WHERE
+			pro_num = #{pro_num}	
+	</update>
+
+	<!-- [체크상품 수정작업2] -->
+	<update id="pro_checked_modify2" parameterType="list">
+	
+		<foreach collection="list" item="item" open="declare begin" separator=";" close="; end;">
+			UPDATE
+				product_tbl
+			SET
+				pro_price = #{item.pro_price}, pro_buy = #{item.pro_buy}
+			WHERE
+				pro_num = #{item.pro_num}
+		</foreach>
+		
+	</update>
+
+
+</mapper>
