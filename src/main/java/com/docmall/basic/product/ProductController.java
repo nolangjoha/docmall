@@ -3,6 +3,7 @@ package com.docmall.basic.product;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,7 +37,9 @@ public class ProductController {
 	
 	
 	@GetMapping("/pro_list")			//@ModelAttribute String cat_name : 타임리프 페이지에서 이 이름을 사용하겠다.
-	public void pro_list(int cat_code, @ModelAttribute("cat_name") String cat_name, Criteria cri, Model model) throws Exception {
+	public void pro_list(@ModelAttribute("cat_code") int cat_code, @ModelAttribute("cat_name") String cat_name, Criteria cri, Model model) throws Exception {
+		
+		cri.setAmount(9); // 출력 목록 갯수
 		
 		log.info("2차 카테고리코드: " + cat_code);
 		log.info("2차 카테고리이름: " + cat_name);
@@ -61,5 +64,29 @@ public class ProductController {
 		
 		return FileManagerUtils.getFile(uploadPath + dateFolderName, fileName);
 	}
+	
+	
+	// [상품정보]
+	@GetMapping("pro_info") 
+	public ResponseEntity<ProductVo> pro_info(int pro_num) throws Exception {
+		ResponseEntity<ProductVo> entity = null;
+		
+		log.info("상품코드" + pro_num);
+		
+		//DB연동 작업  //ajax로 넘어가는건 model작업을 하지 않는다.  // jsp나 타임리프에서 보여주는건 model작업을 한다.
+		ProductVo vo = productService.pro_info(pro_num);
+		vo.setPro_up_folder(vo.getPro_up_folder().replace("\\", "/"));
+		
+		entity = new ResponseEntity<ProductVo>(vo, HttpStatus.OK);
+		//entity = new ResponseEntity<ProductVo>(productService.pro_info(pro_num), HttpStatus.OK);
+			//ajax로 그냥 보낼때는 productService.pro_info(pro_num)가 엔티티 첫번째 자리에 들어가야 한다.
+		
+		
+		
+		
+		return entity;
+	}
+	
+	
 	
 }

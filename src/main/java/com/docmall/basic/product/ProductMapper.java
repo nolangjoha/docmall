@@ -15,4 +15,8 @@ public interface ProductMapper {
 	// [카테고리마다 보이는 상품 갯수]
 	int getCountProductByCategory(int cat_code);
 	//페이징 할땐 언제나 데이터 갯수가 따라다녀야 한다.
+
+	// [장바구니 눌렀을 떼 선택한 상품 정보 가져오기]
+	ProductVo pro_info(int pro_num);
+
 }

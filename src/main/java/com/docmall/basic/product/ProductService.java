@@ -27,4 +27,10 @@ public class ProductService {
 		return productMapper.getCountProductByCategory(cat_code);
 	}
 	
+	
+	// [장바구니 눌렀을 떼 선택한 상품 정보 가져오기]
+	public ProductVo pro_info(int pro_num) {
+		return productMapper.pro_info(pro_num);
+	}
+	
 }

@@ -15,16 +15,19 @@
         <div class="col-md-4" th:each="product : ${pro_list}">
           <div class="card mb-4 shadow-sm">
 			<a class="move" href="#">
-			<img th:src="${'/product/image_display?dateFolderName=' + product.pro_up_folder + '&fileName=s_' + product.pro_img}">
+			<img th:src="${'/product/image_display?dateFolderName=' + product.pro_up_folder + '&fileName=' + product.pro_img}" style="width: 90%; height: 255px;">
 			</a>
             <div class="card-body">
-              <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+              <p class="card-text">
+              	<span th:text="${product.pro_name}"></span><br>
+              	<span th:text="${#numbers.formatInteger(product.pro_price, '3', 'COMMA') + '원'}"></span>
+              </p>
               <div class="d-flex justify-content-between align-items-center">
                 <div class="btn-group">
-                  <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-                  <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary">바로구매</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" name="btn_cart_add" th:data-pro_num="${product.pro_num}">카트 추가</button>
                 </div>
-                <small class="text-muted">9 mins</small>
+                <small class="text-muted">(review : 0)</small>
               </div>
             </div>
           </div>
@@ -44,6 +47,9 @@
 				<input type="hidden" name="amount"  id="amount" th:value="${pageMaker.cri.amount}" />
 				<input type="hidden" name="type" id="type" th:value="${pageMaker.cri.type}" />
 				<input type="hidden" name="keyword" id="keyword" th:value="${pageMaker.cri.keyword}" />
+				
+				<input type="hidden" name="cat_code" id="cat_code" th:value="${cat_code}" />
+				<input type="hidden" name="cat_name" id="cat_name" th:value="${cat_name}" />
 			  </form>
 			</div>
 			<div class="col-md-6 text-center">
@@ -84,8 +90,122 @@
       <div th:replace ="~{layout/comm/footer :: footerFragment}" ></div>
 </div>
 
+<!-- [장바구니 인터페이스] -->
+<!-- Modal -->
+<div class="modal fade" id="order_process_popup" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        
+		<div class="row">
+			<div class="col-6">
+				<img src="" id="info_pro_img" style="width: 100%; height: 255px;">
+			</div>
+			<div class="col-6">
+				<form>
+					<div class="form-group">
+						<span id="info_pro_name"></span>
+					  </div>
+					<div class="form-group">
+					  <label for="exampleFormControlInput1">판매가격</label><span id="info_pro_price"></span>
+					</div>
+					<div class="form-group">
+					  <label for="exampleFormControlSelect2">수량</label>
+					  <input type="text" class="form-control" value="1">
+					</div>
+					<div class="form-group">
+						<button type="button" class="btn btn-secondary" style="width: 100%;">즉시구매</button>
+						<button type="button" class="btn btn-light" style="width: 100%;">카트에 넣기</button>
+					</div>
+				  </form>
+
+			</div>
+
+		</div>
+
+
+      </div>
+
+    </div>
+  </div>
+</div>
 
 </th:block>
+
+<th:block layout:fragment="script">
+  <script>
+    $(document).ready(function() {
+  	  //액션폼은 여러군데에서 접근해야 하니 전역으로 뺀다.
+        let actionForm = $("#actionForm");
+
+  	  // 페이지 클릭시. 이전 1 2 3 4 5 다음
+  	  //아이디가 아니라 클래스를 참조하므로 #이 아닌 .을 쓴다.
+  	  $(".movepage").on("click", function(e) {
+  				  
+  	   e.preventDefault(); // a태그의 href 기능제거.
+  		
+  		actionForm.attr("action", "/product/pro_list"); // 액션폼 주소변경
+
+  		//1) 클릭한 페이지 번호 작업
+  		actionForm.find("input[name='pageNum']").val($(this).attr("href"));  //클릭한 페이지 번호 작업
+
+  		//2) cat_code 필드 추가 
+   		
+  		//3) cat_name 필드 추가
+  		
+  		
+  		actionForm.submit();
+  		
+  	  });
+
+  	  // name="btn_cart_add"
+	  $("button[name='btn_cart_add']").on("click", function() {
+		
+		//부트스트랩 modal show메서드
+		$('#order_process_popup').modal('show');
+
+		let pro_num = $(this).data("pro_num");
+
+		console.log("상품코드", pro_num);
+		//return;
+
+		$.ajax({
+			url: '/product/pro_info',
+			type: 'get',
+			data: {pro_num : pro_num},   //자바스크립트 object문법
+			dataType: 'json',   //상품정보는 json으로 받아온다.
+			success: function(result) {
+				//result : 선택한 상품정보가 넘어온다.
+				console.log("상품정보", result);
+			
+				//modal 창 요소를 접근해서 값을 대입
+				//id="info_pro_name"
+				$("span#info_pro_name").html(result.pro_name);
+
+				//id="info_pro_price"
+				$("span#info_pro_price").html(result.pro_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '원');
+
+				//id="info_pro_img"				
+				let url = `/product/image_display?dateFolderName=${result.pro_up_folder}&fileName=${result.pro_img}`; //productcontroller에 image_display메서드를 보고 작성
+				$("img#info_pro_img").attr("src", url); //이미지 파일 경로가 '\'로 되어있으므로 '/'로 바꿔주는 작업을 controller에서 하던가 다른 처리를 해줘야 한다.
+			
+			}
+		});
+
+	  });
+  	  
+  	  
+
+    }); // ready end
+  </script>
+</th:block>
+
 
     
 </body>
