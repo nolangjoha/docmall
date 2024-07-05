@@ -67,7 +67,7 @@ public class ProductController {
 	
 	
 	// [상품정보]
-	@GetMapping("pro_info") 
+	@GetMapping("/pro_info") 
 	public ResponseEntity<ProductVo> pro_info(int pro_num) throws Exception {
 		ResponseEntity<ProductVo> entity = null;
 		
@@ -81,11 +81,21 @@ public class ProductController {
 		//entity = new ResponseEntity<ProductVo>(productService.pro_info(pro_num), HttpStatus.OK);
 			//ajax로 그냥 보낼때는 productService.pro_info(pro_num)가 엔티티 첫번째 자리에 들어가야 한다.
 		
-		
-		
-		
 		return entity;
 	}
+	
+	
+	// [바로구매 창]
+	@GetMapping("/pro_info_2")
+	public void pro_info_2(int pro_num, Model model) throws Exception {
+		
+		//db연동 
+		ProductVo vo = productService.pro_info(pro_num);
+		vo.setPro_up_folder(vo.getPro_up_folder().replace("\\", "/"));
+		
+		model.addAttribute("product", vo);
+	}
+	
 	
 	
 	

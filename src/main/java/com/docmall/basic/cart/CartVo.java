@@ -14,7 +14,7 @@ public class CartVo {
 //	-- cart_tbl
 //	-- cart_code, pro_num, mbsp_id, cart_amount, cart_date
 
-	private Integer cart_code;  //장바구니는 데이터가 많이 발생하니까 / long으로 해도 큰 문제는 없다.
+	private Long cart_code;  //장바구니는 데이터가 많이 발생하니까 / long으로 해도 큰 문제는 없다.
 	private int pro_num;
 	private String mbsp_id;
 	private int cart_amount;

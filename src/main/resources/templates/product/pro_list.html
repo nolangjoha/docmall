@@ -24,7 +24,7 @@
               </p>
               <div class="d-flex justify-content-between align-items-center">
                 <div class="btn-group">
-                  <button type="button" class="btn btn-sm btn-outline-secondary">바로구매</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" name="btn_direct_order" th:data-pro_num="${product.pro_num}">바로구매</button>
                   <button type="button" class="btn btn-sm btn-outline-secondary" name="btn_cart_add" th:data-pro_num="${product.pro_num}">카트 추가</button>
                 </div>
                 <small class="text-muted">(review : 0)</small>
@@ -136,6 +136,28 @@
   </div>
 </div>
 
+
+<!-- [바로구매 인터페이스] -->
+<!-- Moda2 -->
+<div class="modal fade" id="order_process_popup_2" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+		<div class="modal-header">
+			<h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			  <span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+		<!-- load()메서드를 이용하여, pro_list2.html파일이 실행된 내용이 삽입된다. -->
+		<div class="modal-body" id="popup_info">
+		
+		</div>
+	</div>
+  </div>
+</div>
+
+
+
 </th:block>
 
 <th:block layout:fragment="script">
@@ -164,43 +186,99 @@
   		
   	  });
 
-  	  // name="btn_cart_add"
-	  $("button[name='btn_cart_add']").on("click", function() {
+  	//   // name="btn_cart_add" 장바구니 추가
+	//   $("button[name='btn_cart_add']").on("click", function() {
 		
-		//부트스트랩 modal show메서드
-		$('#order_process_popup').modal('show');
+	// 	//부트스트랩 modal show메서드
+	// 	$('#order_process_popup').modal('show');
+
+	// 	let pro_num = $(this).data("pro_num");
+
+	// 	console.log("상품코드", pro_num);
+	// 	//return;
+
+	// 	$.ajax({
+	// 		url: '/product/pro_info',
+	// 		type: 'get',
+	// 		data: {pro_num : pro_num},   //자바스크립트 object문법
+	// 		dataType: 'json',   //상품정보는 json으로 받아온다.
+	// 		success: function(result) {
+	// 			//result : 선택한 상품정보가 넘어온다.
+	// 			console.log("상품정보", result);
+			
+	// 			//modal 창 요소를 접근해서 값을 대입
+	// 			//id="info_pro_name"
+	// 			$("span#info_pro_name").html(result.pro_name);
+
+	// 			//id="info_pro_price"
+	// 			$("span#info_pro_price").html(result.pro_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '원');
+
+	// 			//id="info_pro_img"				
+	// 			let url = `/product/image_display?dateFolderName=${result.pro_up_folder}&fileName=${result.pro_img}`; //productcontroller에 image_display메서드를 보고 작성
+	// 			$("img#info_pro_img").attr("src", url); //이미지 파일 경로가 '\'로 되어있으므로 '/'로 바꿔주는 작업을 controller에서 하던가 다른 처리를 해줘야 한다.
+			
+	// 		}
+	// 	});
+
+	//   });
+  	  
+  	  
+	  // name="btn_cart_add" 장바구니 추가
+	  $("button[name='btn_cart_add']").on("click", function() {
+		$('#order_process_popup_2').modal('show');
 
 		let pro_num = $(this).data("pro_num");
 
-		console.log("상품코드", pro_num);
-		//return;
+		console.log("상품코드:", pro_num);
+
+		$("#popup_info").load("/product/pro_info_2?pro_num=" + pro_num);
+
+	  });
+
+	  //name="btn_direct_order" 바로구매
+	  $("button[name='btn_direct_order']").on("click", function(){
+		$('#order_process_popup_2').modal('show');
+
+		let pro_num = $(this).data("pro_num");
+
+		console.log("상품코드:", pro_num);
+
+		$("#popup_info").load("/product/pro_info_2?pro_num=" + pro_num);
+
+	  });
+
+	  // 장바구니 추가, modal2에 존재 pro_info_2.html id="btn_cart_add"
+	  //장바구니 팝업이 동적으로 추가된것이기 때문에 직접적으로 이벤스 설정이 불가하다.
+	  $("#order_process_popup_2").on("click", "button#btn_cart_add", function(){
+
+		let pro_num = $(this).data("pro_num");
+		let cart_amount = $("#btn_cart_amount").val();
 
 		$.ajax({
-			url: '/product/pro_info',
+			url: '/cart/cart_add',
 			type: 'get',
-			data: {pro_num : pro_num},   //자바스크립트 object문법
-			dataType: 'json',   //상품정보는 json으로 받아온다.
+			data: {pro_num : pro_num, cart_amount : cart_amount},
+			dataType: "text",  //장바구니에 무사히 들어가면 success문자를 받아올거니까  text로
 			success: function(result) {
-				//result : 선택한 상품정보가 넘어온다.
-				console.log("상품정보", result);
-			
-				//modal 창 요소를 접근해서 값을 대입
-				//id="info_pro_name"
-				$("span#info_pro_name").html(result.pro_name);
-
-				//id="info_pro_price"
-				$("span#info_pro_price").html(result.pro_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '원');
-
-				//id="info_pro_img"				
-				let url = `/product/image_display?dateFolderName=${result.pro_up_folder}&fileName=${result.pro_img}`; //productcontroller에 image_display메서드를 보고 작성
-				$("img#info_pro_img").attr("src", url); //이미지 파일 경로가 '\'로 되어있으므로 '/'로 바꿔주는 작업을 controller에서 하던가 다른 처리를 해줘야 한다.
-			
+				if(result == 'success'){
+					alert("장바구니에 등록 되었습니다.");
+					if(confirm("장바구니로 이동하시겠습니까?")) {
+						location.href = "";  //장바구니 주소
+					}
+					$('#order_process_popup_2').modal('hide');
+				}
 			}
+
+
+
+
 		});
 
 	  });
-  	  
-  	  
+
+
+
+
 
     }); // ready end
   </script>

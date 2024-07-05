@@ -3,9 +3,58 @@
 <mapper namespace="com.docmall.basic.cart.CartMapper">
 <!-- cart_tbl -->
 <!-- cart_code, pro_num, mbsp_id, cart_amount, cart_date -->
+<!-- seq_cart_code -->
 
+	<!-- [장바구니 추가] -->
+		<!-- 
+		INSERT INTO
+			cart_tbl(cart_code, pro_num, mbsp_id, cart_amount)
+		VALUES (
+			seq_cart_code.NEXTVAL, #{pro_num}, #{mbsp_id}, #{cart_amount}
+			)
+		 -->
+	<insert id="cart_add" parameterType="CartVo">
+		MERGE INTO
+			cart_tbl
+		USING dual
+			ON (mbsp_id = #{mbsp_id} AND pro_num = #{pro_num})
+		WHEN MATCHED THEN
+			UPDATE 
+				SET cart_amount = cart_amount + #{cart_amount}
+		WHEN NOT MATCHED THEN
+			INSERT (cart_code, pro_num, mbsp_id, cart_amount)
+			VALUES (seq_cart_code.NEXTVAL, #{pro_num}, #{mbsp_id}, #{cart_amount})
+	</insert>
+	
+	<select id="cart_list" parameterType="String" resultType="CartProductVo">
+		SELECT 
+			c.mbsp_id ,p.pro_up_folder, p.pro_img, p.pro_price, p.pro_name, c.cart_code, p.pro_num, c.cart_amount
+		FROM 
+			cart_tbl c INNER JOIN product_tbl p
+		ON 
+			c.pro_num = p.pro_num
+		WHERE 
+			c.mbsp_id = #{mbsp_id}
+	</select>
 
+	<!-- [장바구니 목록 삭제] -->
+	<delete id="cart_del" parameterType="Long">
+		DELETE FROM
+			cart_tbl
+		WHERE
+			cart_code = #{cart_code}
+	</delete>
 
+	<!--  [장바구니 수량 변경] -->
+	<update id="cart_change" parameterType="map">
+		UPDATE
+			cart_tbl
+		SET
+			cart_amount	= #{cart_amount}
+		WHERE 
+			cart_code = #{cart_code}
+	</update>
+	
 
 
 </mapper>

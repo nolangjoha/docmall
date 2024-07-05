@@ -31,7 +31,7 @@
 
     <a class="p-2 text-dark" th:href="@{/user/mypage}">마이페이지</a>  
     <a class="p-2 text-dark" href="#">주문정보</a>  <!-- th:href="@{#}" 이라 해놓으면 에러발생하므로 잠시 원본상태로 둠.-->
-    <a class="p-2 text-dark" href="#">장바구니</a>
+    <a class="p-2 text-dark" th:href="@{/cart/cart_list}">장바구니</a>
   </nav>
 </div>
 
