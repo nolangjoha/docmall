@@ -97,6 +97,21 @@ public class ProductController {
 	}
 	
 	
+	// [상품 상세 설명]
+	@GetMapping("/pro_detail")
+	public void pro_detail(int pro_num, Model model) throws Exception {
+		
+		//상품코드 가져오기
+		ProductVo vo = productService.pro_info(pro_num);
+		vo.setPro_up_folder(vo.getPro_up_folder().replace("\\", "/"));
+		model.addAttribute("product", vo);
+		
+		
+		//상품 리뷰 model
+		
+		//Q&A model
+	}
+	
 	
 	
 }

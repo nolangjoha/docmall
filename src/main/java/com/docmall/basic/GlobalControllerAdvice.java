@@ -1,4 +1,4 @@
-package com.docmall.basic.product;
+package com.docmall.basic;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 //"com.docmall.basic" 기본패키지를 설정하면, 전체 영향을 받는다.
-@ControllerAdvice(basePackages = {"com.docmall.basic.product"})  
+@ControllerAdvice(basePackages = {"com.docmall.basic.product", "com.docmall.basic.cart", "com.docmall.basic.order"})  
 //카테고리가 사용되는 컨트롤러의 패키지를 지정. 지정한 패키지에는 카테고리 작업을 하지 않아도 된다.
 public class GlobalControllerAdvice {
 

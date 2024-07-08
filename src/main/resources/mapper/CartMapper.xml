@@ -55,6 +55,17 @@
 			cart_code = #{cart_code}
 	</update>
 	
+	<!-- [장바구니 비우기] -->
+	<delete id="cart_empty" parameterType="String">
+		DELETE FROM
+			cart_tbl
+		WHERE
+			mbsp_id = #{mbsp_id}
+	</delete>
+
+
+
+
 
 
 </mapper>

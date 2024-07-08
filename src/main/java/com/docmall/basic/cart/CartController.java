@@ -101,4 +101,19 @@ public class CartController {
 	}
 	
 	
+	//[장바구니 비우기]
+	@GetMapping("/cart_empty")  //장바구니를 비우고 다시 장바구니 페이지 출력, redirect기능을 써야하니 리턴타입은 String
+	public String cart_empty(HttpSession session) throws Exception {
+		
+		//userController에 아아디 뽑아오는 작업(mypage) 복붙 // 아이디 확보
+		String mbsp_id = ((UserVO) session.getAttribute("login_status")).getMbsp_id();
+		
+		cartService.cart_empty(mbsp_id);
+		
+		return "redirect:/cart/cart_list";
+	}
+	
+	
+	
+	
 }

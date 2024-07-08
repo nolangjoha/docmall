@@ -14,12 +14,12 @@
       <div class="row">
         <div class="col-md-4" th:each="product : ${pro_list}">
           <div class="card mb-4 shadow-sm">
-			<a class="move" href="#">
+			<a class="move" th:href="@{/product/pro_detail(pro_num = ${product.pro_num})}">
 			<img th:src="${'/product/image_display?dateFolderName=' + product.pro_up_folder + '&fileName=' + product.pro_img}" style="width: 90%; height: 255px;">
 			</a>
             <div class="card-body">
               <p class="card-text">
-              	<span th:text="${product.pro_name}"></span><br>
+              	<a th:href="@{/product/pro_detail(pro_num = ${product.pro_num})}"><span th:text="${product.pro_name}"></span></a><br>
               	<span th:text="${#numbers.formatInteger(product.pro_price, '3', 'COMMA') + '원'}"></span>
               </p>
               <div class="d-flex justify-content-between align-items-center">
@@ -222,7 +222,7 @@
 
 	//   });
   	  
-  	  
+  	  //modal 2 
 	  // name="btn_cart_add" 장바구니 추가
 	  $("button[name='btn_cart_add']").on("click", function() {
 		$('#order_process_popup_2').modal('show');
@@ -263,7 +263,7 @@
 				if(result == 'success'){
 					alert("장바구니에 등록 되었습니다.");
 					if(confirm("장바구니로 이동하시겠습니까?")) {
-						location.href = "";  //장바구니 주소
+						location.href = "/cart/cart_list";  //장바구니 주소
 					}
 					$('#order_process_popup_2').modal('hide');
 				}

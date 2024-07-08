@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+				layout:decorate="~{/layout/baselayout}">  <!-- 레이아웃 상속 -->
+
+	<!--  각 페이지마다 css 내용을 각각 다른경우 재정의목적 -->
+	<th:block layout:fragment="css">
+	  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+	</th:block>
+	
+<body>
+
+<th:block layout:fragment="content">  <!-- 해당 태그 내 부분 빼고 다 재정의 되니까 이 태그 내부만 바꿔주면 다양한 페이지를 얻을 수 있다. -->  
+
+	<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+	  <h3 class="display-6" th:utext="${cat_name}"></h3>
+	</div>
+	
+	
+<div class="container">
+	<div class="row">
+        	<div class="col-6">
+        		<img th:src="${'/product/image_display?dateFolderName=' + product.pro_up_folder + '&fileName=' + product.pro_img}" style="width: 100%;height: 255px;">
+        	</div>
+        	<div class="col-6">
+        	<form>
+				<div class="form-group">
+					<span id="info_pro_name" th:text="${product.pro_name}">이름</span>
+					<small class="text-muted">(review : 0)</small>
+				</div>
+  				<div class="form-group">
+			    	<label for="exampleFormControlInput1">판매가격: </label><span th:text="${#numbers.formatInteger(product.pro_price, 3, 'COMMA') + '원'}"></span>
+				</div>
+			    <div class="form-group">
+					<label>수량</label>
+					<input type="number" class="form-control" value="1" id="btn_cart_amount">
+			    </div>
+			    <div class="form-group">
+					<button type="button" class="btn btn-secondary" style="width: 100%;" th:data-pro_num="${product.pro_num}" id="btn_direct_buy">BUY IT NOW</button>
+					<button type="button" class="btn btn-light" style="width: 100%;" th:data-pro_num="${product.pro_num}" id="btn_cart_add">ADD TO CART</button>
+			    </div>
+			</form>
+        	
+        	</div>
+    
+    <!-- 탭 -->    	
+	<div class="row">
+		<div class="col">
+			<div id="pro_info">
+			  <ul>
+			    <li><a href="#pro_detail">상품상세</a></li>
+			    <li><a href="#pro_review">상품리뷰</a></li>
+			    <li><a href="#pro_qna">Q&A</a></li>
+			  </ul>
+			  <div id="pro_detail">
+			    <p th:utext="${product.pro_content}"></p>
+			  </div>
+			  <div id="pro_review">
+			    <p>Morbi tincidunt, dui sit amet facilisis feugiat, odio metus gravida ante, ut pharetra massa metus id nunc. Duis scelerisque molestie turpis. Sed fringilla, massa eget luctus malesuada, metus eros molestie lectus, ut tempus eros massa ut dolor. Aenean aliquet fringilla sem. Suspendisse sed ligula in ligula suscipit aliquam. Praesent in eros vestibulum mi adipiscing adipiscing. Morbi facilisis. Curabitur ornare consequat nunc. Aenean vel metus. Ut posuere viverra nulla. Aliquam erat volutpat. Pellentesque convallis. Maecenas feugiat, tellus pellentesque pretium posuere, felis lorem euismod felis, eu ornare leo nisi vel felis. Mauris consectetur tortor et purus.</p>
+			  </div>
+			  <div id="pro_qna">
+			    <p>Mauris eleifend est et turpis. Duis id erat. Suspendisse potenti. Aliquam vulputate, pede vel vehicula accumsan, mi neque rutrum erat, eu congue orci lorem eget lorem. Vestibulum non ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sodales. Quisque eu urna vel enim commodo pellentesque. Praesent eu risus hendrerit ligula tempus pretium. Curabitur lorem enim, pretium nec, feugiat nec, luctus a, lacus.</p>
+			    <p>Duis cursus. Maecenas ligula eros, blandit nec, pharetra at, semper at, magna. Nullam ac lacus. Nulla facilisi. Praesent viverra justo vitae neque. Praesent blandit adipiscing velit. Suspendisse potenti. Donec mattis, pede vel pharetra blandit, magna ligula faucibus eros, id euismod lacus dolor eget odio. Nam scelerisque. Donec non libero sed nulla mattis commodo. Ut sagittis. Donec nisi lectus, feugiat porttitor, tempor ac, tempor vitae, pede. Aenean vehicula velit eu tellus interdum rutrum. Maecenas commodo. Pellentesque nec elit. Fusce in lacus. Vivamus a libero vitae lectus hendrerit hendrerit.</p>
+			  </div>
+			</div>
+		</div>
+	</div>        	
+        	
+        	
+    </div>
+
+
+
+	<div th:replace ="~{layout/comm/footer :: footerFragment}" ></div>
+</div>
+
+
+
+</th:block>
+
+
+
+
+
+<th:block layout:fragment="script">
+<!-- 제이쿼리ui코드 추가 -->
+  <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
+
+  <script>
+    $(document).ready(function() {
+  	 
+      // 제이쿼리 ui, tabs	
+      $( "#pro_info" ).tabs();	
+    	
+    	
+    	//modal 2 
+  	  // name="btn_cart_add" 장바구니 추가
+  	  $("button#btn_cart_add").on("click", function() {
+  		
+  	     	console.log("장바구니 추가");
+  		  
+    		let pro_num = $(this).data("pro_num");
+      		let cart_amount = $("#btn_cart_amount").val();
+
+      		$.ajax({
+      			url: '/cart/cart_add',
+      			type: 'get',
+      			data: {pro_num : pro_num, cart_amount : cart_amount},
+      			dataType: "text",  //장바구니에 무사히 들어가면 success문자를 받아올거니까  text로
+      			success: function(result) {
+      				if(result == 'success'){
+      					alert("장바구니에 등록 되었습니다.");
+      					if(confirm("장바구니로 이동하시겠습니까?")) {
+      						location.href = "/cart/cart_list";  //장바구니 주소
+      					}
+      				}
+      			}
+
+      		});
+
+  	  });
+
+  	  //name="btn_direct_order" 바로구매
+  	  $("button[name='btn_direct_order']").on("click", function(){
+  		
+
+  	  });
+
+
+    	
+
+    }); // ready end
+  </script>
+</th:block>
+
+
+    
+</body>
+</html>
