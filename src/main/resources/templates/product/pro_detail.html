@@ -5,6 +5,41 @@
 	<!--  각 페이지마다 css 내용을 각각 다른경우 재정의목적 -->
 	<th:block layout:fragment="css">
 	  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+	  <!--1) Include Handlebars from a CDN --> <!--핸들바-->
+	  <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+	  <!-- 핸들바 탬플릿 -->
+	  <script id="review-template" type="text/x-handlebars-template">
+
+	  <table id="revtable" class="table">
+	  <thead>
+	    <tr>
+	      <th scope="col">번호</th>
+	      <th scope="col">제목</th>
+	      <th scope="col">내용</th>
+	      <th scope="col">평점</th>
+	      <th scope="col">작성자</th>
+		  <th scope="col">등록일</th>
+		  <th scope="col">비고</th>
+		</tr>
+	  </thead>
+
+	  <tbody>
+		{{#each .}}
+	     <tr>
+	       <th scope="row">{{re_code}}</th>
+	       <td>{{re_title}}</td>
+	       <td>{{re_content}}</td>
+	       <td>{{re_rate}}</td>
+		   <td>{{mbsp_id}}</td>
+		   <td>{{re_date}}</td>
+		   <td>수정,삭제 버튼</td>
+	     </tr>
+	    {{/each}}
+	  </tbody>
+
+	</table>
+	  
+	  </script>
 	</th:block>
 	
 <body>
@@ -41,7 +76,7 @@
 			</form>
         	
         	</div>
-    
+   </div> 
     <!-- 탭 -->    	
 	<div class="row">
 		<div class="col">
@@ -55,7 +90,9 @@
 			    <p th:utext="${product.pro_content}"></p>
 			  </div>
 			  <div id="pro_review">
-			    <p>Morbi tincidunt, dui sit amet facilisis feugiat, odio metus gravida ante, ut pharetra massa metus id nunc. Duis scelerisque molestie turpis. Sed fringilla, massa eget luctus malesuada, metus eros molestie lectus, ut tempus eros massa ut dolor. Aenean aliquet fringilla sem. Suspendisse sed ligula in ligula suscipit aliquam. Praesent in eros vestibulum mi adipiscing adipiscing. Morbi facilisis. Curabitur ornare consequat nunc. Aenean vel metus. Ut posuere viverra nulla. Aliquam erat volutpat. Pellentesque convallis. Maecenas feugiat, tellus pellentesque pretium posuere, felis lorem euismod felis, eu ornare leo nisi vel felis. Mauris consectetur tortor et purus.</p>
+			   <div id="review_list">
+
+			   </div>
 			  </div>
 			  <div id="pro_qna">
 			    <p>Mauris eleifend est et turpis. Duis id erat. Suspendisse potenti. Aliquam vulputate, pede vel vehicula accumsan, mi neque rutrum erat, eu congue orci lorem eget lorem. Vestibulum non ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sodales. Quisque eu urna vel enim commodo pellentesque. Praesent eu risus hendrerit ligula tempus pretium. Curabitur lorem enim, pretium nec, feugiat nec, luctus a, lacus.</p>
@@ -66,7 +103,7 @@
 	</div>        	
         	
         	
-    </div>
+    
 
 
 
@@ -85,7 +122,7 @@
 <!-- 제이쿼리ui코드 추가 -->
   <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
 
-  <script>
+  <script th:inline="javascript">
     $(document).ready(function() {
   	 
       // 제이쿼리 ui, tabs	
@@ -121,12 +158,42 @@
 
   	  //name="btn_direct_order" 바로구매
   	  $("button[name='btn_direct_order']").on("click", function(){
-  		
+		
 
   	  });
 
+	  // [상품 후기와 페이징 정보를 호출하는 작업]
+	  let reviewPage = 1;
+//	  let url = "상품 후기와 페이징 정보를 요청하는 주소"; ReviewController에서 만든거  /revlist/{pro_num}/{page}
+	  let url = "/review/revlist/" + [[${product.pro_num}]] + "/" + reviewPage;
+	  console.log("상품후기주소", url);
+    
+	  
+	  getReviewList(url);
 
-    	
+	  //ajax문법을 통한 주소요청 작업 //   $.ajx , load(), getJSON() :ajax기능을 제공해줌.
+	  function getReviewList(url) {
+		$.getJSON(url, function(reviewlist) { //url이 실행되면 function(reviewlist)로 받음. 이건 우리가 임의로 작성하는 것.ajax
+			console.log("reviewlist", reviewlist.revlist);
+			console.log("reviewlist", reviewlist.pageMaker);
+
+			
+			print_reviewlist(reviewlist.revlist, $("#review_list"), $("#review-template"))
+		});
+	  }
+
+	  // 상품 후기 ui작업 				// reviewlist.revlist가 reviewData로 들어간다.
+	  let print_reviewlist = function(reviewData, target, template) {
+		let templateObj = Handlebars.compile(template.html()); // 템플릿 문법검사및 참조
+		let reviewHtml = templateObj(reviewData);
+		target.children().remove();
+		target.append(reviewHtml);
+	}
+
+
+	  //페이징 ui작업
+
+
 
     }); // ready end
   </script>

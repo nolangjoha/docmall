@@ -3,8 +3,9 @@
 <mapper namespace="com.docmall.basic.review.ReviewMapper">
 
 <!-- 
-	--review_tbl
-	--re_code, mbsp_id, pro_num, re_title, re_content, re_rate, re_date
+	review_tbl
+	re_code, mbsp_id, pro_num, re_title, re_content, re_rate, re_date
+	seq_review_code
  -->
 
 	<!-- [상품후기 페이징] -->
@@ -12,7 +13,7 @@
 		SELECT  
 			re_code, mbsp_id, pro_num, re_title, re_content, re_rate, re_date
 		FROM (
-	    	SELECT /*+ INDEX_DESC(review_tbl PK_RE_CODE) */
+	    	SELECT /*+ INDEX_DESC(review_tbl pk_re_code) */
 	        	ROWNUM AS RN, re_code, mbsp_id, pro_num, re_title, re_content, re_rate, re_date
 	    	FROM 
 	        	review_tbl
