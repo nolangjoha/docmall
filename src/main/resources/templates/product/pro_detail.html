@@ -9,36 +9,33 @@
 	  <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
 	  <!-- 핸들바 탬플릿 -->
 	  <script id="review-template" type="text/x-handlebars-template">
+		<table id="revtable" class="table">
+		<thead>
+			<tr>
+			<th scope="col">번호</th>
+			<th scope="col">제목</th>
+			<th scope="col">내용</th>
+			<th scope="col">평점</th>
+			<th scope="col">작성자</th>
+			<th scope="col">등록일</th>
+			<th scope="col">비고</th>
+			</tr>
+		</thead>
 
-	  <table id="revtable" class="table">
-	  <thead>
-	    <tr>
-	      <th scope="col">번호</th>
-	      <th scope="col">제목</th>
-	      <th scope="col">내용</th>
-	      <th scope="col">평점</th>
-	      <th scope="col">작성자</th>
-		  <th scope="col">등록일</th>
-		  <th scope="col">비고</th>
-		</tr>
-	  </thead>
-
-	  <tbody>
-		{{#each .}}
-	     <tr>
-	       <th scope="row">{{re_code}}</th>
-	       <td>{{re_title}}</td>
-	       <td>{{re_content}}</td>
-	       <td>{{re_rate}}</td>
-		   <td>{{mbsp_id}}</td>
-		   <td>{{re_date}}</td>
-		   <td>수정,삭제 버튼</td>
-	     </tr>
-	    {{/each}}
-	  </tbody>
-
-	</table>
-	  
+		<tbody>
+			{{#each .}}
+			<tr>
+			<th scope="row">{{re_code}}</th>
+			<td>{{re_title}}</td>
+			<td>{{re_content}}</td>
+			<td>{{displayStar re_rate}}</td>
+			<td>{{mbsp_id}}</td>
+			<td>{{convertDate re_date}}</td>
+			<td>{{authControlView mbsp_id re_code}}</td>
+			</tr>
+			{{/each}}
+		</tbody>
+		</table> 
 	  </script>
 	</th:block>
 	
@@ -90,9 +87,11 @@
 			    <p th:utext="${product.pro_content}"></p>
 			  </div>
 			  <div id="pro_review">
-			   <div id="review_list">
-
-			   </div>
+			   <p><button type="button" class="btn btn-link" id="btn_review_modal">상품후기작성</button></p>
+			   <!--상품후기 출력위치-->
+			   <div id="review_list"></div>
+			   <!--페이징 출력 위치-->
+			   <div id="review_paging"></div>
 			  </div>
 			  <div id="pro_qna">
 			    <p>Mauris eleifend est et turpis. Duis id erat. Suspendisse potenti. Aliquam vulputate, pede vel vehicula accumsan, mi neque rutrum erat, eu congue orci lorem eget lorem. Vestibulum non ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sodales. Quisque eu urna vel enim commodo pellentesque. Praesent eu risus hendrerit ligula tempus pretium. Curabitur lorem enim, pretium nec, feugiat nec, luctus a, lacus.</p>
@@ -110,6 +109,33 @@
 	<div th:replace ="~{layout/comm/footer :: footerFragment}" ></div>
 </div>
 
+
+<!-- Button trigger modal -->
+<!--상품후기 모달-->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+	Launch demo modal
+  </button>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="review_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+		  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		  </button>
+		</div>
+		<div class="modal-body">
+		  ...
+		</div>
+		<div class="modal-footer">
+		  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		  <button type="button" class="btn btn-primary">Save changes</button>
+		</div>
+	  </div>
+	</div>
+  </div>
 
 
 </th:block>
@@ -163,13 +189,13 @@
   	  });
 
 	  // [상품 후기와 페이징 정보를 호출하는 작업]
-	  let reviewPage = 1;
+	  let reviewPage = 1;  //첫번째 페이지
 //	  let url = "상품 후기와 페이징 정보를 요청하는 주소"; ReviewController에서 만든거  /revlist/{pro_num}/{page}
 	  let url = "/review/revlist/" + [[${product.pro_num}]] + "/" + reviewPage;
 	  console.log("상품후기주소", url);
     
 	  
-	  getReviewList(url);
+	  getReviewList(url);  // 이걸 호출해서 아래 코드가 동작 되게 해야 한다.
 
 	  //ajax문법을 통한 주소요청 작업 //   $.ajx , load(), getJSON() :ajax기능을 제공해줌.
 	  function getReviewList(url) {
@@ -177,12 +203,14 @@
 			console.log("reviewlist", reviewlist.revlist);
 			console.log("reviewlist", reviewlist.pageMaker);
 
-			
+			//함수호출
 			print_reviewlist(reviewlist.revlist, $("#review_list"), $("#review-template"))
+			print_paging(reviewlist.pageMaker, $("#review_paging"));
+		
 		});
 	  }
 
-	  // 상품 후기 ui작업 				// reviewlist.revlist가 reviewData로 들어간다.
+	  // 상품 후기 ui작업 ///핸들바 템플릿 이용				// reviewlist.revlist가 reviewData로 들어간다.
 	  let print_reviewlist = function(reviewData, target, template) {
 		let templateObj = Handlebars.compile(template.html()); // 템플릿 문법검사및 참조
 		let reviewHtml = templateObj(reviewData);
@@ -190,8 +218,114 @@
 		target.append(reviewHtml);
 	}
 
+	  //페이징 ui작업  //로직으로 작업
+	  let print_paging = function(pageData, target) {
+		let str = `<nav aria-label="Page navigation example">`;
+			str += `<ul class="pagination">`;
 
-	  //페이징 ui작업
+            //이전표시여부
+            if(pageData.prev) {
+                str += `<li class="page-item">`;
+                str += ` <a class="page-link" href="${pageData.startPage - 1}" aria-label="Previous">`;
+                str += `<span aria-hidden="true">이전</span>`;
+                str += `</a>`;
+                str += `</li>`;
+            }
+
+
+            //페이지 번호 표시
+            for(let i=pageData.startPage; i<=pageData.endPage; i++) {
+                let className = pageData.cri.pageNum == i ? 'active' : '';
+                str += `<li class="page-item ${className}"><a class="page-link" href="${i}">${i}</a></li>`;        
+            }
+           
+            //다음표시여부
+            if(pageData.next) {
+                str += `<li class="page-item">`;
+                str += ` <a class="page-link" href="${pageData.endPage + 1}" aria-label="Next">`;
+                str += `<span aria-hidden="true">다음</span>`;
+                str += `</a>`;
+                str += `</li>`;
+            }
+
+
+			//target에 값을 추가해준다
+			target.html(str);
+	  }
+
+
+
+	  
+	  //핸들바 함수 : 평점표시//  handlebar template에서 사용 목적
+	  Handlebars.registerHelper("displayStar", function(rating) {
+
+		let star = "";
+		switch(rating) {
+			case 1:
+				star = "★☆☆☆☆";
+				break;
+			case 2:
+				star = "★★☆☆☆";
+				break;
+			case 3:
+				star = "★★★☆☆";
+				break;
+			case 4:
+				star = "★★★★☆";
+				break;
+			case 5:
+				star = "★★★★★";
+				break;
+		}
+		return star;
+	  });
+	  
+	  //행들바함수 : 날짜 포맷 (2024/07/10)
+	  Handlebars.registerHelper("convertDate", function(re_date) {
+		const d = new Date(re_date);
+
+		let year = d.getFullYear();
+		let month = d.getMonth() + 1;
+		let date = d.getDate();
+		let hour = d.getHours();
+		let minute = d.getMinutes();
+
+		return `${year}/${month}/${date}/${hour}:${minute}`;
+	  });
+
+	  // 핸들바함수 : 작성자와 로그인사용자가 일치되는 경우 수정, 삭제 버튼 표시
+	  Handlebars.registerHelper("authControlView", function(mbsp_id, re_code) {
+		
+		let loginId = [[${session.login_status.mbsp_id}]];
+		//console.log(loginId);
+
+		//로그인 아이디와 리뷰작성자가 같은 사람이면
+		let str = "";
+		if(loginId == mbsp_id) {
+			str += `<button type="button" class="btn btn-link" data-re_code="${re_code}">수정</button>`;
+			str += `<button type="button" class="btn btn-link" data-re_code="${re_code}">삭제</button>`;
+		}
+
+		return new Handlebars.SafeString(str);
+	  });
+
+	  
+	  //페이징 클릭 이벤트
+	$("#review_paging").on("click", "nav ul.pagination a", function(e) {
+		e.preventDefault(); 
+		reviewPage = $(this).attr("href"); //선택한 페이지 번호값이 들어감.
+
+		url = "/review/revlist/" + [[${product.pro_num}]] + "/" + reviewPage;
+
+	 	getReviewList(url);
+
+	});
+
+	// 상품후기 modal
+	$("#btn_review_modal").on("click", function() {
+		$("#review_modal").modal('show');
+	});
+
 
 
 

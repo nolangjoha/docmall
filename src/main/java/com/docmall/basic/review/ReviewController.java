@@ -38,6 +38,7 @@ public class ReviewController {
 		
 		// [1.후기목록]
 		Criteria cri = new Criteria();
+		cri.setAmount(2);
 		cri.setPageNum(page);  //페이지 정보 삽입
 		
 		//db에서 가져온 후기목록 데이터
