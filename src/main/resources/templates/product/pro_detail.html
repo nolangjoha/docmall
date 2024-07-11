@@ -4,11 +4,27 @@
 
 	<!--  각 페이지마다 css 내용을 각각 다른경우 재정의목적 -->
 	<th:block layout:fragment="css">
-	  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
-	  <!--1) Include Handlebars from a CDN --> <!--핸들바-->
-	  <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
-	  <!-- 핸들바 탬플릿 -->
-	  <script id="review-template" type="text/x-handlebars-template">
+		<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+
+		<!-- 별평점 css -->
+		<style>
+			/* 별 평점 기본선택자*/
+			p#star_re_rate a.re_rate {
+				font-size: 22px;
+				text-decoration: none;
+				color: lightgray;
+			} 
+
+			/* 별평점에 마우스 클릭했을 경우 선택자, 아래 효과 적용 */
+			p#star_re_rate a.re_rate.on {
+				color: red;
+			}
+		</style>
+
+		<!--1) Include Handlebars from a CDN --> <!--핸들바-->
+		<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+		<!-- 핸들바 탬플릿 -->
+		<script id="review-template" type="text/x-handlebars-template">
 		<table id="revtable" class="table">
 		<thead>
 			<tr>
@@ -111,31 +127,45 @@
 
 
 <!-- Button trigger modal -->
-<!--상품후기 모달-->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-	Launch demo modal
-  </button>
-  
-  <!-- Modal -->
-  <div class="modal fade" id="review_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<!--상품후기 모달 id="review_modal"-->
+<div class="modal fade" id="review_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
-	  <div class="modal-content">
-		<div class="modal-header">
-		  <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-		  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-			<span aria-hidden="true">&times;</span>
-		  </button>
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">상품후기</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<label for="message-text" class="col-form-label">제목</label>
+						<input class="form-control" id="re_title">
+					</div>
+					<div class="form-group">
+						<label for="message-text" class="col-form-label">내용</label>
+						<textarea class="form-control" id="re_content"></textarea>
+					</div>
+					<div class="form-group">
+						<label for="recipient-name" class="col-form-label">별평점</label>
+						<p id="star_re_rate">
+							<a class="re_rate" href="#">☆</a>
+							<a class="re_rate" href="#">☆</a>
+							<a class="re_rate" href="#">☆</a>
+							<a class="re_rate" href="#">☆</a>
+							<a class="re_rate" href="#">☆</a>
+						</p>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			<button type="button" id="btn_review_save" class="btn btn-primary" th:data-pro_num="${product.pro_num}">상품후기저장</button>
+			</div>
 		</div>
-		<div class="modal-body">
-		  ...
-		</div>
-		<div class="modal-footer">
-		  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-		  <button type="button" class="btn btn-primary">Save changes</button>
-		</div>
-	  </div>
 	</div>
-  </div>
+</div>
 
 
 </th:block>
@@ -302,8 +332,8 @@
 		//로그인 아이디와 리뷰작성자가 같은 사람이면
 		let str = "";
 		if(loginId == mbsp_id) {
-			str += `<button type="button" class="btn btn-link" data-re_code="${re_code}">수정</button>`;
-			str += `<button type="button" class="btn btn-link" data-re_code="${re_code}">삭제</button>`;
+			str += `<button type="button" name="btn_review_edit" class="btn btn-link" data-re_code="${re_code}">수정</button>`;
+			str += `<button type="button" name="btn_review_delete" class="btn btn-link" data-re_code="${re_code}">삭제</button>`;
 		}
 
 		return new Handlebars.SafeString(str);
@@ -325,6 +355,95 @@
 	$("#btn_review_modal").on("click", function() {
 		$("#review_modal").modal('show');
 	});
+
+	// 별평점 클릭
+	$("p#star_re_rate a.re_rate").on("click", function(e) {
+		e.preventDefault(); //링크 기능 제거
+
+		$(this).parent().children().removeClass("on"); // on이란 선택자를 제거, 마음이 바껴서 3번 별 눌렀다가 4번별 누르면 제거하고 다시 실행.
+		$(this).addClass("on").prevAll("a").addClass("on"); // 현재 선택한 별과 이전 별까지 on선택자 추가.
+	});
+
+	//상품후기 저장. id="btn_review_save"
+	$("button#btn_review_save").on("click", function() {
+		let pro_num = $(this).data("pro_num");
+		console.log(pro_num);
+	
+		let re_title = $("#re_title").val();
+		console.log(re_title);
+		let re_content = $("#re_content").val();
+		let re_rate = 0;
+
+		$("p#star_re_rate a.re_rate").each(function () {
+			if($(this).attr("class") == "re_rate on") {
+				re_rate += 1;
+			}
+		});
+	
+		// 유효성검사
+		if(re_title == "") {
+			alert("제목을 입력하세요");
+			return;
+		}
+
+		if(re_content == "") {
+			alert("내용을 입력하세요");
+			return;
+		}
+
+		if(re_rate == 0) {
+			alert("평점을 선택하세요");
+		return;
+		}
+
+		// 자바스크립트 오브젝트 문법으로 정보를 전달.
+		let review_data = {pro_num : pro_num, re_title : re_title, re_content : re_content, re_rate : re_rate};
+
+		// ajax로 오브젝트 데이터를 넘기겠음
+		$.ajax({
+			url:'/review/review_save',
+			//브라우저는 요청방식이 get,post만 지원하는것이 대부분이다. 
+			//그래서 REST API개발에서는  get,post, delete, put, patch요청방식을 지원하므로, 
+			// 스프링 컨트롤러에서 rest api로 매핑주소가 설정되어 있으면, 
+			// 아래와 같이["X-HTTP-Method-Override" : "요청방식"]으로 코드를 구성해줘야, 정상적으로 스프링 주소를 호출할 수 있다.
+			headers : {
+				"Content-Type" : "application/json", "X-HTTP-Method-Override" : "POST"
+			},
+			type : 'post',
+			data : JSON.stringify(review_data),  // 자바스크립트 object문법을 json으로 변환 하는 작업.
+			dataType: 'text',
+			success: function(result) {
+				if(result == "success") {
+					alert("상품후기가 등록되었습니다.");
+					$("#review_modal").modal('hide');
+					getReviewList(url); //상품후기 목록과 페이징 정보 갱신
+				}
+			}
+		});
+	});
+
+	// 상품후기 삭제 클릭 name="btn_review_delete"
+	$("div#review_list").on("click", "button[name='btn_review_delete']", function() {
+		if(!confirm("상품후기를 삭제하시겠습니까?")) return;
+
+		let re_code = $(this).data("re_code");
+		$.ajax({
+			url:'/review/review_delete/' + re_code,
+			headers : {
+				"Content-Type" : "application/json", "X-HTTP-Method-Override" : "DELETE"
+			},
+			type : 'delete',
+			dataType: 'text',
+			success: function(result) {
+				if(result == "success") {
+					alert("상품후기가 삭제되었습니다.");
+					getReviewList(url); //상품후기 목록과 페이징 정보 갱신
+				}
+			}
+		});
+		
+	});
+
 
 
 

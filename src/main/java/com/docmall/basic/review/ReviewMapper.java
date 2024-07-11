@@ -14,7 +14,11 @@ public interface ReviewMapper {
 	// [리뷰 전체 데이터 갯수]  //만약 검색까지 들어간다면 Criteria까지 들어가야 함.
 	int getCountReviewByPro_num(Integer pro_num);
 	
+	// [리뷰 저장]
+	void review_save(ReviewVo vo);
 	
 	
+	// [리뷰삭제]
+	void review_delete(Long re_code);
 	
 }

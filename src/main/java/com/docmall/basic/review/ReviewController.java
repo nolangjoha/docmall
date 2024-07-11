@@ -5,15 +5,21 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.docmall.basic.common.dto.Criteria;
 import com.docmall.basic.common.dto.PageDTO;
+import com.docmall.basic.user.UserVO;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,6 +65,43 @@ public class ReviewController {
 		return entity;
 	}
 	
+	
+	//JacksonDatabind 라이브러리가 있어야 아래가 동작된다. 해당 라이브러리는 Spring web에 포함되있다.
+	//json작업을 할때는 잭슨 라이브러리가 동작되고 있다는 것을 기억하고 있어야 한다.
+	//상품후기 저장
+//	@PostMapping(value = 매핑이름(매핑주소) , consumes = 클라이언트에게서 넘어오는 값(후기)를 포맷(MIME): json데이터만 받겠다. 다른값 들어오면 에러처리,  produces = {}   )
+	@PostMapping(value = "/review_save", consumes = {"application/json"}, produces = {MediaType.TEXT_PLAIN_VALUE})
+	public ResponseEntity<String> review_save(@RequestBody ReviewVo vo, HttpSession session) throws Exception {
+		
+		//세션작업 : 아이디 가져옴.
+		String mbsp_id = ((UserVO) session.getAttribute("login_status")).getMbsp_id();
+		vo.setMbsp_id(mbsp_id);
+		
+		log.info("상품후기데이터:" + vo);
+		
+		reviewService.review_save(vo);
+		
+		ResponseEntity<String> entity = null;
+
+		entity = new ResponseEntity<String>("success", HttpStatus.OK);
+		
+		return entity;
+	} 
+	
+	
+	// [상품후기 삭제]
+	@DeleteMapping("/review_delete/{re_code}")
+	public ResponseEntity<String> review_delete(@PathVariable Long re_code) throws Exception {
+		
+		ResponseEntity<String> entity = null;
+		
+		log.info("장바구니코드" + re_code);
+		reviewService.review_delete(re_code);
+		
+		entity = new ResponseEntity<String>("success", HttpStatus.OK);
+		
+		return entity;
+	} 
 	
 	
 	

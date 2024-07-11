@@ -41,4 +41,34 @@
 	</select>
 
 
+	<!-- [리뷰저장] -->
+	<insert id="review_save" parameterType="ReviewVo">
+		INSERT INTO
+			review_tbl (
+				re_code,
+				mbsp_id, 
+				pro_num, 
+				re_title, 
+				re_content, 
+				re_rate)
+		VALUES (
+			seq_review_code.nextval,
+			#{mbsp_id}, 
+			#{pro_num}, 
+			#{re_title}, 
+			#{re_content}, 
+			#{re_rate})
+	</insert>
+
+	<!-- 리뷰삭제 -->
+	<delete id="review_delete" parameterType="Long">
+		DELETE FROM
+			review_tbl
+		WHERE
+			re_code = #{re_code}
+		
+	</delete>
+
+
+
 </mapper>
