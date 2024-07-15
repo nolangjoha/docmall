@@ -17,6 +17,12 @@ public interface ReviewMapper {
 	// [리뷰 저장]
 	void review_save(ReviewVo vo);
 	
+	//[리뷰수정 페이지]
+	ReviewVo review_modify(Long re_code);
+	
+	// [리뷰수정]
+	void review_update(ReviewVo vo);
+	
 	
 	// [리뷰삭제]
 	void review_delete(Long re_code);

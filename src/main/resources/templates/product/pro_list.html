@@ -138,7 +138,7 @@
 
 
 <!-- [바로구매 인터페이스] -->
-<!-- Moda2 -->
+<!-- Modal2 -->
 <div class="modal fade" id="order_process_popup_2" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -268,17 +268,51 @@
 					$('#order_process_popup_2').modal('hide');
 				}
 			}
-
-
-
-
 		});
 
 	  });
 
+	  
+
+	  // 바로구매 추가, modal2에 존재 id="btn_direct_buy"
+	  //장바구니 팝업이 동적으로 추가된것이기 때문에 직접적으로 이벤스 설정이 불가하다.
+	  $("#order_process_popup_2").on("click", "button#btn_direct_buy", function(){
+
+		let pro_num = $(this).data("pro_num");
+		let cart_amount = $("#btn_cart_amount").val();
+
+		$.ajax({
+			url: '/cart/cart_add',
+			type: 'get',
+			data: {pro_num : pro_num, cart_amount : cart_amount},
+			dataType: "text",  //장바구니에 무사히 들어가면 success문자를 받아올거니까  text로
+			success: function(result) {
+				if(result == 'success'){
+					alert("장바구니에 등록 되었습니다.");
+					if(confirm("장바구니로 이동하시겠습니까?")) {
+						location.href = "/cart/cart_list";  //장바구니 주소
+					}
+					$('#order_process_popup_2').modal('hide');
+				}
+			}
+		});
+
+	  });  
 
 
+		//바로구매 id="btn_direct_buy" , id="btn_cart_amount"  id="btn_direct_buy"
+		$("button#btn_direct_buy").on("click", function() {
 
+			let pro_num = $(this).data("pro_num");
+			let cart_amount = $("#btn_cart_amount").val(); 
+
+			let url = `/order/orderinfo?pro_num=${pro_num}&cart_amount=${cart_amount}`;
+
+			location.href=url;
+
+		});
+	  
+	  
 
     }); // ready end
   </script>

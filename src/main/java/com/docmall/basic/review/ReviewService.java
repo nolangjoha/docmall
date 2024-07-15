@@ -32,6 +32,15 @@ public class ReviewService {
 		reviewMapper.review_save(vo);
 	};
 	
+	//[리뷰 수정페이지]
+	public ReviewVo review_modify(Long re_code) {
+		return reviewMapper.review_modify(re_code);
+	}
+	
+	// [리뷰수정]
+	public void review_update(ReviewVo vo) {
+		reviewMapper.review_update(vo);
+	}
 	
 	//[리뷰삭제]
 	public void review_delete(Long re_code) {

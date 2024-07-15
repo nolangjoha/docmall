@@ -60,6 +60,32 @@
 			#{re_rate})
 	</insert>
 
+	<!-- 리뷰수정 페이지-->
+	<select id="review_modify" parameterType="Long" resultType="ReviewVo">
+		SELECT
+			re_code, mbsp_id, pro_num, re_title, re_content, re_rate, re_date
+		FROM
+			review_tbl
+		WHERE
+			re_code = #{re_code}
+	</select>
+
+	<!-- 리뷰 수정 기능 -->
+	<update id="review_update" parameterType="ReviewVo">
+		UPDATE
+			review_tbl
+		SET
+			re_title = #{re_title},
+			re_content = #{re_content},
+			re_rate = #{re_rate},
+			re_date = SYSDATE
+		WHERE
+			re_code = #{re_code}
+	</update>
+	
+
+
+
 	<!-- 리뷰삭제 -->
 	<delete id="review_delete" parameterType="Long">
 		DELETE FROM
@@ -68,6 +94,9 @@
 			re_code = #{re_code}
 		
 	</delete>
+
+
+
 
 
 

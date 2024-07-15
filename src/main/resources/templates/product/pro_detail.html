@@ -141,7 +141,8 @@
 				<form>
 					<div class="form-group">
 						<label for="message-text" class="col-form-label">제목</label>
-						<input class="form-control" id="re_title">
+						<input type="text" class="form-control" id="re_title">
+						<input type="hidden" class="form-control" id="re_code">
 					</div>
 					<div class="form-group">
 						<label for="message-text" class="col-form-label">내용</label>
@@ -160,8 +161,9 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-			<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-			<button type="button" id="btn_review_save" class="btn btn-primary" th:data-pro_num="${product.pro_num}">상품후기저장</button>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<button type="button" id="btn_review_save" class="btn btn-primary" th:data-pro_num="${product.pro_num}">상품후기저장</button>
+				<button type="button" id="btn_review_modify" class="btn btn-primary" th:data-pro_num="${product.pro_num}">상품후기수정</button>
 			</div>
 		</div>
 	</div>
@@ -212,11 +214,7 @@
 
   	  });
 
-  	  //name="btn_direct_order" 바로구매
-  	  $("button[name='btn_direct_order']").on("click", function(){
-		
 
-  	  });
 
 	  // [상품 후기와 페이징 정보를 호출하는 작업]
 	  let reviewPage = 1;  //첫번째 페이지
@@ -326,17 +324,31 @@
 	  // 핸들바함수 : 작성자와 로그인사용자가 일치되는 경우 수정, 삭제 버튼 표시
 	  Handlebars.registerHelper("authControlView", function(mbsp_id, re_code) {
 		
-		let loginId = [[${session.login_status.mbsp_id}]];
+
+		let loginVo = [[${session.login_status}]];  //로그인 상태
+
+		let loginId = "";  // 로그인 아이디 초기화
+		if(loginVo != null) {	// 로그인상태가 없지 않다. > 로그인 상태라면
+			loginId = [[${session.login_status == null ? '' : session.login_status.mbsp_id}]];  // 로그인 상태가 null라면 공백, 로그인 상태라면 리뷰작성자의 아이디값을 대입하라.
+		}
+		// session.login_status.mbsp_id는 서버 코드는 먼저 작동한다(주석을 걸어도 이미 그전에 실행 됨.). 그걸 막기 위해 삼항연산자로 접근한다.
 		//console.log(loginId);
+
+
+
 
 		//로그인 아이디와 리뷰작성자가 같은 사람이면
 		let str = "";
-		if(loginId == mbsp_id) {
+
+		if(loginVo !== null && loginId == mbsp_id) {	// 로그인 상태고 로그인 아이디가 리뷰를 작성자의 아이디와 같다면
 			str += `<button type="button" name="btn_review_edit" class="btn btn-link" data-re_code="${re_code}">수정</button>`;
 			str += `<button type="button" name="btn_review_delete" class="btn btn-link" data-re_code="${re_code}">삭제</button>`;
+		
+		return new Handlebars.SafeString(str);  // 수정, 삭제 버튼을 출력하겠다.
+		}else {
+			return "";
 		}
 
-		return new Handlebars.SafeString(str);
 	  });
 
 	  
@@ -353,6 +365,9 @@
 
 	// 상품후기 modal
 	$("#btn_review_modal").on("click", function() {
+			
+		$("#btn_review_save").show();
+		$("#btn_review_modify").hide();
 		$("#review_modal").modal('show');
 	});
 
@@ -422,6 +437,107 @@
 		});
 	});
 
+		// 상품후기 수정폼 name="btn_review_edit"
+		$("div#review_list").on("click", "button[name='btn_review_edit']", function() {
+			let re_code = $(this).data("re_code");
+
+			$.ajax({
+				url : '/review/review_modify/' + re_code,
+				headers: {
+					"Content-Type" : "application/json", "X-HTTP-Method-Override" : "GET"
+				},
+				type: 'get',
+				datatype : 'json',
+				success : function(result) {
+					console.log(result);
+
+					// modal 내용에 상품후기 출력작업
+					$("#re_title").val(result.re_title);
+					$("#re_content").val(result.re_content);
+					$("#re_code").val(result.re_code);  // <input type="hidden">
+
+					//$("#btn_review_save").html("상품후기수정");
+
+					let re_rate = result.re_rate;
+					
+					$("p#star_re_rate a.re_rate").each(function(index, item) {
+						
+						if(index < re_rate) {
+							$(this).addClass("on");
+						}
+					});
+
+					// modal 보여주기
+					$("#btn_review_save").hide();
+					$("#btn_review_modify").show();
+					$("#review_modal").modal('show');
+
+				}
+
+			});
+		});
+
+	// 상품후기 수정기능
+	$("button#btn_review_modify").on("click", function() {
+		let pro_num = $(this).data("pro_num");
+		console.log(pro_num);
+	
+		let re_code = $("#re_code").val();
+		let re_title = $("#re_title").val();
+		let re_content = $("#re_content").val();
+		let re_rate = 0;
+
+		$("p#star_re_rate a.re_rate").each(function () {
+			if($(this).attr("class") == "re_rate on") {
+				re_rate += 1;
+			}
+		});
+	
+		// 유효성검사
+		if(re_title == "") {
+			alert("제목을 입력하세요");
+			return;
+		}
+
+		if(re_content == "") {
+			alert("내용을 입력하세요");
+			return;
+		}
+
+		if(re_rate == 0) {
+			alert("평점을 선택하세요");
+		return;
+		}
+
+		// 자바스크립트 오브젝트 문법으로 정보를 전달.
+		let review_data = {pro_num : pro_num, re_title : re_title, re_content : re_content, re_rate : re_rate, re_code : re_code};
+
+		// ajax로 오브젝트 데이터를 넘기겠음
+		$.ajax({
+			url:'/review/review_modify',
+			//브라우저는 요청방식이 get,post만 지원하는것이 대부분이다. 
+			//그래서 REST API개발에서는  get,post, delete, put, patch요청방식을 지원하므로, 
+			// 스프링 컨트롤러에서 rest api로 매핑주소가 설정되어 있으면, 
+			// 아래와 같이["X-HTTP-Method-Override" : "요청방식"]으로 코드를 구성해줘야, 정상적으로 스프링 주소를 호출할 수 있다.
+			headers : {
+				"Content-Type" : "application/json", "X-HTTP-Method-Override" : "PUT"
+			},
+			type : 'put',
+			data : JSON.stringify(review_data),  // 자바스크립트 object문법을 json으로 변환 하는 작업.
+			dataType: 'text',
+			success: function(result) {
+				if(result == "success") {
+					alert("상품후기가 수정되었습니다.");
+					$("#review_modal").modal('hide');
+					getReviewList(url); //상품후기 목록과 페이징 정보 갱신
+				}
+			}
+		});
+	});
+
+
+
+
 	// 상품후기 삭제 클릭 name="btn_review_delete"
 	$("div#review_list").on("click", "button[name='btn_review_delete']", function() {
 		if(!confirm("상품후기를 삭제하시겠습니까?")) return;
@@ -444,7 +560,18 @@
 		
 	});
 
+	
+	//바로구매 id="btn_direct_buy" , id="btn_cart_amount"
+	$("button#btn_direct_buy").on("click", function() {
 
+		let pro_num = $(this).data("pro_num");
+		let cart_amount = $("#btn_cart_amount").val(); 
+
+		let url = `/order/orderinfo?pro_num=${pro_num}&cart_amount=${cart_amount}`;
+
+		location.href=url;
+
+	});
 
 
 
