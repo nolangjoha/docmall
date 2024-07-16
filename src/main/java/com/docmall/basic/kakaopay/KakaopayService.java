@@ -1,5 +1,6 @@
 package com.docmall.basic.kakaopay;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,39 +17,49 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class KakaopayService {
-//    @Value("${kakaopay.api.secret.key}")
-//    private String kakaopaySecretKey;
-//
-//    @Value("${cid}")
-//    private String cid;
-//
-//    @Value("${sample.host}")
-//    private String sampleHost;
+    @Value("${kakaopay.api.secret.key}")
+    private String kakaopaySecretKey;
 
+    @Value("${cid}")
+    private String cid;
+    
+    @Value("${approval}")
+    private String approval;
+
+    @Value("${cancel}")
+    private String cancel;
+
+    @Value("${fail}")
+    private String fail;
+
+    
     private String tid;
+    private String partnerOrderId;
+    private String partnerUserId;
+    
 
     //1) 결제 준비요청(ready)
-    public ReadyResponse ready() {
+    public ReadyResponse ready(String partnerOrderId, String partnerUserId,  String itemName, int quantity, int totalAmount , int taxFreeAmount, int vatAmount) {
         // Request header
         HttpHeaders headers = new HttpHeaders();  // 헤더에 값을 담을 때 사용할 수 있다.
         //headers.add("Authorization", "DEV_SECRET_KEY " + kakaopaySecretKey);
         //headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization","SECRET_KEY DEV2D81342C94F24F1B0838CD4B516A9B5664D0A");
+        headers.set("Authorization","SECRET_KEY " + kakaopaySecretKey);
         headers.set("Content-Type", "application/json;charset=utf-8");
         
         // 2)Request param
         ReadyRequest readyRequest = ReadyRequest.builder()  //.builder()를 사용하면 매개변수를 사용한 생성자들을 만든것과 동일한 결과가 나온다. 빌터패턴이라 함.
-                .cid("TC0ONETIME")
-                .partnerOrderId("1")
-                .partnerUserId("1")
-                .itemName("상품명")
-                .quantity(1)
-                .totalAmount(1100)
-                .taxFreeAmount(0)
-                .vatAmount(100)
-                .approvalUrl("http://localhost:9090/kakao/approval")	//성공. 카카오페이 서버에서 이 주소를 찾아옴.
-                .cancelUrl("http://localhost:9090/kakao/cancel") 	//취소. 
-                .failUrl("http://localhost:9090/kakao/fail")		//실패 . 
+                .cid(cid)
+                .partnerOrderId(partnerOrderId)
+                .partnerUserId(partnerUserId)
+                .itemName(itemName)
+                .quantity(quantity)
+                .totalAmount(totalAmount)
+                .taxFreeAmount(taxFreeAmount)
+                .vatAmount(vatAmount)
+                .approvalUrl(approval)	//성공. 카카오페이 서버에서 이 주소를 찾아옴.
+                .cancelUrl(cancel) 	//취소. 
+                .failUrl(fail)		//실패 . 
                 .build();
 
         // Send reqeust
@@ -68,6 +79,12 @@ public class KakaopayService {
         // 주문번호와 TID를 매핑해서 저장해놓는다.
         // Mapping TID with partner_order_id then save it to use for approval request.
         this.tid = readyResponse.getTid(); // 전역변수 작업
+        
+        //전역변수 작업
+        this.partnerOrderId = partnerOrderId;
+        this.partnerUserId = partnerUserId;
+        
+        
         return readyResponse;
     }
 
@@ -76,16 +93,16 @@ public class KakaopayService {
         // ready할 때 저장해놓은 TID로 승인 요청
         // Call “Execute approved payment” API by pg_token, TID mapping to the current payment transaction and other parameters.
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization","SECRET_KEY DEV2D81342C94F24F1B0838CD4B516A9B5664D0A");
+        headers.add("Authorization","SECRET_KEY " + kakaopaySecretKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Request param
         //2차 요청정보
         ApproveRequest approveRequest = ApproveRequest.builder()
-                .cid("TC0ONETIME")
+                .cid(cid)
                 .tid(tid)  //전역변수 tid를 여기서 사용한다.
-                .partnerOrderId("1")
-                .partnerUserId("1")
+                .partnerOrderId(partnerOrderId)
+                .partnerUserId(partnerUserId)
                 .pgToken(pgToken)
                 .build();
 

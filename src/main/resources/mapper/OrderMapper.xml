@@ -2,5 +2,48 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.docmall.basic.order.OrderMapper">
 
+<!-- 주문정보 테이블
+order_tbl
+ord_code, mbsp_id, ord_name, ord_addr_zipcode, ord_addr_basic, ord_addr_detail, ord_tel, ord_price, ord_desc, ord_regdate
+seq_ord_code
+ -->
+ <!-- 주문상세 테이블
+ordetail_tbl
+ord_code, pro_num, dt_amount, dt_price
+
+  -->
+
+	<!-- 1)주문테이블 -->
+	<insert id="order_insert" parameterType="OrderVo">
+	
+		<selectKey keyProperty="ord_code" resultType="Long" order="BEFORE">
+			SELECT
+				seq_ord_code.NEXTVAL
+			FROM
+				dual		
+		</selectKey>
+	
+		INSERT INTO 
+			order_tbl(
+				ord_code, mbsp_id, ord_name, ord_addr_zipcode, ord_addr_basic, ord_addr_detail, ord_tel, ord_price, ord_desc
+				)
+		VALUES
+			(#{ord_code}, #{mbsp_id}, #{ord_name}, #{ord_addr_zipcode}, #{ord_addr_basic}, #{ord_addr_detail}, #{ord_tel}, #{ord_price}, #{ord_desc})
+	</insert>
+
+
+	<!-- 2) 주문상세테이블 -->
+	<insert id="orderDetail_insert" parameterType="map">
+		INSERT INTO
+	   		ordetail_tbl(ord_code, pro_num, dt_amount, dt_price)
+		SELECT
+		    #{ord_code}, pro_num, cart_amount, pro_num*cart_amount
+		FROM
+		     cart_tbl
+		WHERE
+		    mbsp_id = #{mbsp_id}
+	</insert>
+
+
 
 </mapper>
