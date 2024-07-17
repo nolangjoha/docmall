@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -87,6 +88,35 @@ public class OrderController {
 		
 		
 		return entity;
+	}
+	
+	
+	// [무통장 입금]
+	@PostMapping("/ordersave")
+	public String ordersave(OrderVo vo, String pay_nobank, String pay_nobank_user,HttpSession session) throws Exception {
+		
+		log.info("주문정보: " + vo);
+		log.info("입금은행: " + pay_nobank);
+		log.info("예금주: " + pay_nobank_user);
+		
+		//아이디 확보
+		String mbsp_id = ((UserVO) session.getAttribute("login_status")).getMbsp_id();
+		vo.setMbsp_id(mbsp_id);
+		
+		String payinfo = pay_nobank + "/" + pay_nobank_user;
+		
+		orderService.order_process(vo, mbsp_id, "무통장입금", "미납", payinfo);
+		
+		log.info("결제정보:" + payinfo);
+		
+		return "redirect:/order/ordercomplete";
+	}
+	
+	
+	// [주문완료]
+	@GetMapping("/ordercomplete")
+	public void ordercomplete() {
+		
 	}
 	
 	

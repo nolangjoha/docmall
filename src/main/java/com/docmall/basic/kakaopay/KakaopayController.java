@@ -79,6 +79,7 @@ public class KakaopayController {
 //    	int taxFreeAmount = 0;
 //    	int vatAmount = 0;
     	
+    	// 1) 카카오페이 준비요청작업 : 무통장입금을 같이 사용할 경우, 무통장 입금 방법을 사용할 때 아래 코드는 작동하면 안되다.
     	ReadyResponse readyResponse = kakaopayService.ready(partnerOrderId, partnerUserId, itemName, quantity, totalAmount, taxFreeAmount, vatAmount);
     	
     	log.info("응답데이터:" + readyResponse);
@@ -112,7 +113,7 @@ public class KakaopayController {
     	*/
     	if(approveResponse.contains("aid")) {
     		log.info("주문자정보2: " + vo);
-    		orderService.order_process(vo, mbsp_id);
+    		orderService.order_process(vo, mbsp_id, "kakaopay", "완료", "kakaopay");
     		
     	}
     	

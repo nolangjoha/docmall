@@ -57,7 +57,7 @@
 				<h3 class="card-title">주문서 작성</h3>
 				</div>
 
-				<form class="form-horizontal" id="" action="" method="post">
+				<form class="form-horizontal" id="orderForm" action="/order/ordersave" method="post">
 					<div class="card-body">
 
 						<div class="form-group">
@@ -103,7 +103,7 @@
 						<div class="form-group row">
 							<label for="ord_desc" class="col-sm-2 col-form-label">특이사항</label>
 							<div class="col-sm-10">
-								<textarea class="form-control" id="ord_desc" rows="3"></textarea>
+								<textarea class="form-control" id="ord_desc" name="ord_desc" rows="3"></textarea>
 							</div>
 						</div>
 
@@ -125,14 +125,13 @@
 										은행명 
 										<select name="pay_nobank" id="pay_nobank">
 										  <option value="">입금은행을 선택하세요.</option>
-										  <option value="123-123-1234">KEB하나은행</option>
-										  <option value="456-456-4567">국민은행</option>
-										  <option value="100-100-1000">신한은행</option>
-										  <option value="200-200-2000">SC제일은행</option>
+										  <option value="KEB하나은행/123-123-1234">KEB하나은행/123-123-1234</option>
+										  <option value="국민은행/456-456-4567">국민은행/456-456-4567</option>
+										  <option value="신한은행/100-100-1000">신한은행/100-100-1000</option>
+										  <option value="SC제일은행/200-200-2000">SC제일은행/200-200-2000</option>
 										</select><br>
-										계좌번호 <input type="text" name="pay_bankaccount" id="pay_bankaccount"><br>
 										예금주 <input type="text" name="pay_nobank_user" id="pay_nobank_user"><br>
-										메모<textarea cols="50" rows="3" name="pay_memo" id="pay_memo"></textarea>
+										
 									  </div>
 									</div>
 									</fieldset>
@@ -304,23 +303,37 @@
 		});		
 
 
-		// 주문결제하기(카카오페이) id="btn_order_payment"
+		// 주문결제하기 id="btn_order_payment"
 		$("button#btn_order_payment").on("click", function() {
-			$.ajax({
-				url:'/kakao/kakaoPay',
-				type: 'get',
-				data: {ord_name:$("#ord_name").val(), ord_addr_zipcode:$("#sample2_postcode").val(), ord_addr_basic:$("#sample2_address").val(), ord_addr_detail:$("#sample2_detailAddress").val(), ord_tel:$("#ord_tel").val(), ord_price:$("#ord_price").val(), ord_desc:$("#ord_desc").val()},
-				dataType:'json',
-				success:function(response) {
-					console.log("응답" + response);
-					
-					alert(response.next_redirect_pc_url);
-					location.href = response.next_redirect_pc_url; //결제 QR코드 주소 이동
-				}
-			});
+
+			let paymethod = $("input[name='paymethod']:checked").val(); 
+
+			//console.log("paymethod : " + paymethod);
+			//return;
+
+			if(paymethod == "nobank") {
+				let orderForm = $("#orderForm");
+				orderForm.submit();
+
+			}else if(paymethod == "kakaopay") {
+				
+				$.ajax({
+					url:'/kakao/kakaoPay',
+					type: 'get',
+					data: {ord_name:$("#ord_name").val(), ord_addr_zipcode:$("#sample2_postcode").val(), ord_addr_basic:$("#sample2_address").val(), ord_addr_detail:$("#sample2_detailAddress").val(), ord_tel:$("#ord_tel").val(), ord_price:$("#ord_price").val(), ord_desc:$("#ord_desc").val()},
+					dataType:'json',
+					success:function(response) {
+						console.log("응답" + response);
+						
+						alert(response.next_redirect_pc_url);
+						location.href = response.next_redirect_pc_url; //결제 QR코드 주소 이동
+					}
+				});
+
+			}
 		});
 
-
+		// 무통장 입금 id="pay_nobank"
 
 
 

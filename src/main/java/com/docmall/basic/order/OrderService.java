@@ -20,7 +20,7 @@ public class OrderService {
 	private final CartMapper cartMapper;
 	
 	@Transactional	//@Transactional: 여기 코드에서 가장 중요한 부분. 트랜젝션은 원래 DB쪽 기능이다. 한 기능에서 DB와 관련된 여러 작업이 수행될때 사용한다. 하나의 기능이라도 이상이 있으면 진행하지 않고 되돌린다.
-	public void order_process(OrderVo vo, String mbsp_id) {
+	public void order_process(OrderVo vo, String mbsp_id, String paymethod, String p_status, String payinfo) {
 		
 		//1) 주문테이블(insert)
 		vo.setMbsp_id(mbsp_id); //아이디 값을 넣는 작업
@@ -32,9 +32,11 @@ public class OrderService {
 		//3) 결제테이블(insert)
 		PayInfoVo p_vo = PayInfoVo.builder()
 				.ord_code(vo.getOrd_code())
+				.mbsp_id(mbsp_id)
 				.p_price(vo.getOrd_price())
-				.paymethod("kakaopay")
-				.p_status("완납")
+				.paymethod(paymethod)
+				.payinfo(payinfo)
+				.p_status(p_status)
 				.build();
 				
 		payInfoMapper.payInfo_insert(p_vo);
