@@ -103,8 +103,10 @@ public class OrderController {
 		String mbsp_id = ((UserVO) session.getAttribute("login_status")).getMbsp_id();
 		vo.setMbsp_id(mbsp_id);
 		
+		//결제정보 : 은행명/예금주
 		String payinfo = pay_nobank + "/" + pay_nobank_user;
 		
+		//결제정보 DB insert
 		orderService.order_process(vo, mbsp_id, "무통장입금", "미납", payinfo);
 		
 		log.info("결제정보:" + payinfo);
@@ -113,7 +115,7 @@ public class OrderController {
 	}
 	
 	
-	// [주문완료]
+	// [주문완료 페이지]
 	@GetMapping("/ordercomplete")
 	public void ordercomplete() {
 		
