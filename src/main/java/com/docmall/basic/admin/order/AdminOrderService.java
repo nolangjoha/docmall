@@ -27,12 +27,15 @@ public class AdminOrderService {
 		return adminOrderMapper.getTotalCount(cri);
 	}
 	
-	// [주문자 주문정보 가져오기]
+	// [주문자(수령인) 정보]
 	public OrderVo order_info(Long ord_code) {
 		return adminOrderMapper.order_info(ord_code);
 	}
 	
-	
+	// [주문상품 정보]
+	public List<OrderDetailInfoVo> order_detail_info(Long ord_code) {
+		return adminOrderMapper.order_detail_info(ord_code);
+	}
 	
 	
 }

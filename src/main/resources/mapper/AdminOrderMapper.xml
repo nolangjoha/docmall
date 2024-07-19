@@ -66,7 +66,7 @@
 	    	ord_code > 0 	<!-- bno > 0을 쓰면 위 구문이 생성되지 않아도 에러가 발생하지 않는다. -->
 	</select>
 
-	<!-- [주문자 주문정보 가져오기] -->
+	<!-- [주문자(수령인) 정보] -->
 	<select id="order_info" parameterType="Long" resultType="OrderVo">
 		SELECT
 			ord_code, mbsp_id, ord_name, ord_addr_zipcode, ord_addr_basic, ord_addr_detail, ord_tel, ord_price, ord_desc, ord_regdate
@@ -76,7 +76,7 @@
 	    	ord_code = #{ord_code} 
 	</select>
 
-	<!-- [주문 정보 상품상세 내역] -->
+	<!-- [주문상품 정보] -->
 	<select id="order_detail_info" parameterType="Long" resultType="OrderDetailInfoVo">
 		SELECT 
 			ot.ord_code, ot.pro_num, ot.dt_amount, ot.dt_price, p.pro_name, p.pro_up_folder, p.pro_img

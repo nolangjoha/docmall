@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h3> 주문상품정보</h3>  
+    <table class="table">
+        <thead class="thead-dark">
+        <tr>
+            
+            <th scope="col">주문상품</th>
+            <th scope="col">판매가</th>
+            <th scope="col">수량</th>
+            <th scope="col">주문금액</th>
+            <th scope="col">비고</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="ord_product, status : ${ord_product_list}">
+            <td th:text="${status.count}">1</td>
+            <td>
+                <a class="move" href="#">
+                    <img th:src="${'/admin/order/image_display?dateFolderName=' + ord_product.pro_up_folder + '&fileName=s_' + ord_product.pro_img}" style="width: 30px; height: 30px;">
+                </a>    
+                <a class="move pro_name" href="#" th:text="${ord_product.pro_name}"></a>
+            </td>
+            <td th:text="${ord_product.dt_price}">Otto</td>
+            <td th:text="${ord_product.dt_amount}">Otto</td>
+            <td th:text="${ord_product.dt_price * ord_product.dt_amount}">Otto</td>
+            <th scope="col">
+                <button type="button" class="btn btn-danger" th:data-pro_num="${ord_product.pro_num}">삭제</button>
+            </th>
+        </tr>
+        </tbody>
+    </table>
+
+<hr>
+<h3>결제정보</h3>
+    <table class="table">
+    <thead class="thead-dark">
+        <tr>
+        <th scope="col">결제방식</th>
+        <td scope="col">무통장</td>
+        <th scope="col">결제금액</th>
+        <td scope="col">450000</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+        <th scope="row">입금자명</th>
+        <td th:text="${ord_basic.ord_name}">홍길동</td>
+        <th>입금계좌</th>
+        <td>농협123</td>
+        </tr>
+        <tr>
+        <th scope="row">현금영수증방식</th>
+        <td>사업자</td>
+        <th>연락처 및 사업자번호</th>
+        <td>010-0000-0000</td>
+        </tr>
+    </tbody>
+    </table>
+
+<hr>
+<h3>주문자(수령인)정보</h3>
+    <table class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">수령인</th>
+            <td scope="col">
+                <input type="text" th:value="${ord_basic.ord_name}">    
+            </td>
+            <td scope="col">전화번호</td>
+            <td scope="col">
+                <input type="text" th:value="${ord_basic.ord_tel}"> 
+            </td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row">주소</th>
+            <td colspan="3">
+                <button type="button" class="btn btn-outline-primary" onclick="sample2_execDaumPostcode()">우편번호</button>
+                <input type="text" class="form-control" id="sample2_postcode" name="mbsp_zipcode" th:value="${ord_basic.ord_addr_zipcode}">
+                <input type="text" class="form-control" id="sample2_address" name="mbsp_addr" th:value="${ord_basic.ord_addr_basic}">
+                <input type="text" class="form-control" id="sample2_detailAddress" name="mbsp_deaddr" th:value="${ord_basic.ord_addr_detail}">
+				<input type="hidden" id="sample2_extraAddress" placeholder="참고항목">
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">배송메모</th>
+            <td colspan="3">
+                <textarea rows="3" cols="70" th:text="${ord_basic.ord_desc}">여기는 배송내용</textarea>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+<hr>
+<h3>관리자 메모</h3>
+<textarea rows="" cols="80">여기는 관리자 메모</textarea>
+
+
+
+
+</body>
+</html>

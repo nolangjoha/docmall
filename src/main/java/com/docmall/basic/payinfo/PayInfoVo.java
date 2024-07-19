@@ -14,7 +14,7 @@ import lombok.ToString;
 public class PayInfoVo {
 /*
  --payinfo
---p_id, ord_code, paymethod, p_price, p_status, p_date
+--p_id, ord_code, mbsp_id, paymethod, payinfo, p_price, p_status, p_date
 --pk_payinfo_idx
  */
 	
