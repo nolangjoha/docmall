@@ -37,7 +37,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 						   <td>{{dt_amount}}</td>
 						   <td>{{unit_order_tot_price dt_price dt_amount}}</td>   <!--핸들바합수 매개변수1 매개변수2-->
 						   <th scope="col">
-							   <button type="button" class="btn btn-danger" data-pro_num="{{pro_num}}">삭제</button>
+							   <button type="button" name="order_product_detail" class="btn btn-danger" data-pro_num="{{pro_num}}">삭제</button>
 						   </th>
 					   </tr>
 				   {{/each}}
@@ -198,30 +198,30 @@ scratch. This page gets rid of all links and provides the needed markup only.
 				
 					<hr>
 					<h3>[결제정보]</h3>
-						<table class="table">
+					<table class="table">
 						<thead class="thead-dark">
-							<tr>
-								<th scope="col">결제방식</th>
-								<td scope="col"><span id="paymethod"></span></td>
-								<th scope="col">결제금액</th>
-								<td scope="col"><span id="p_price"></span></td>
-							</tr>
+						  <tr>
+							<th scope="col">결제방식</th>
+							<td scope="col"><input type="text" id="paymethod" readonly></td>
+							<th scope="col">결제금액</th>
+							<td scope="col"><input type="text" id="p_price" readonly></td>
+						  </tr>
 						</thead>
 						<tbody>
-							<tr>
-								<th scope="row">입금자명</th>
-								<td><span id="mbsp_id"></span></td> <!-- 입금자 명 payinfo에 있는데 내가 할때는 나눠서 작업 해주자-->
-								<th>입금계좌</th>
-								<td><span id="payinfo"></span></td>
-							</tr>
-							<tr>
-								<th scope="row">입금상태</th>
-								<td><span id="p_status"></span></td> 
-								<th scope="row">기타</th>
-								<td><span>기타</span></td> 
-							</tr>
+						  <tr>
+							<th scope="row">입금자명</th>
+							<td><input type="text" id="mbsp_id" readonly></td>
+							<th>입금계좌</th>
+							<td><input type="text" id="payinfo" readonly></td>
+						  </tr>
+						  <tr>
+							<th scope="row">입금상태</th>  <!--  <span id="p_status"></span> 인식이 안됨 -->
+							<td><input type="text" id="p_status" readonly></td>
+							<th>기타</th>
+							<td><span>기타</span></td>
+						  </tr>
 						</tbody>
-						</table>
+					  </table>
 				
 				<hr>
 				<h3>[주문자(수령인)정보]</h3>
@@ -231,6 +231,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 							<th scope="col">수령인</th>
 							<td scope="col">
 								<input type="text" id="ord_name" name="ord_name">    
+								<input type="hidden" id="mbsp_id" name="mbsp_id"> 
 							</td>
 							<td scope="col">전화번호</td>
 							<td scope="col">
@@ -252,15 +253,15 @@ scratch. This page gets rid of all links and provides the needed markup only.
 						<tr>
 							<th scope="row">배송메모</th>
 							<td colspan="3">
-								<textarea rows="3" cols="70" id="ord_desc" name="ord_desc">여기는 배송내용</textarea>
+								<textarea rows="3" cols="70" id="ord_desc" name="ord_desc"></textarea>
 							</td>
 						</tr>
 						</tbody>
 					</table>
 				<hr>
 				<h3>[관리자 메모]</h3>
-				<textarea rows="" cols="80">여기는 관리자 메모</textarea>
-				
+				<textarea rows="" cols="80" id="ord_admin_memo" name="ord_admin_memo"></textarea>
+				<button type="button" id="btn_order_basic_save" class="btn btn-secondary">수정하기</button>
 
 
 					
@@ -375,6 +376,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
 			//액션폼은 여러군데에서 접근해야 하니 전역으로 뺀다.
 			let actionForm = $("#actionForm");
 
+			
+
 			// 페이지 클릭시. 이전 1 2 3 4 5 다음
 			//아이디가 아니라 클래스를 참조하므로 #이 아닌 .을 쓴다.
 			$(".movepage").on("click", function(e) {
@@ -392,10 +395,17 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 			
 			// 주문상세 버튼 name="btn_order_info"
-			$("button[name='btn_order_info']").on("click", function() {
-				
-				let ord_code = $(this).data("ord_code");
+			let ord_code;  //전역으로 뺌.
 
+			$("button[name='btn_order_info']").on("click", function() {
+				ord_code = $(this).data("ord_code");
+
+				order_detail_info();
+			});
+
+
+			// 주문상세정보 함수
+			function order_detail_info() {
 				// 주문상세정보.  id="order_detail_info_popup"
 				//$("#order_detail_info_popup").show  단순한 것들
 				//$("#order_detail_info_popup").modal('show'). 부트스트랩 성격은 modal로 해야 보여줄 수 있다.
@@ -424,11 +434,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
 						print_order_product_info(result.ord_pro_list, $("#order_product_info"), $("#order_product_template"));
 					
 						// 결제정보
-						$("#paymethod").text(result.payinfo.paymethod);
-						$("#p_price").text(result.payinfo.p_price);
-						$("#mbsp_id").text(result.payinfo.mbsp_id);
-						$("#payinfo").text(result.payinfo.payinfo);
-						$("#p_status").text(result.payinfo.p_status);
+						$("#paymethod").val(result.payinfo.paymethod);
+						$("#p_price").val(result.payinfo.p_price);
+						$("#mbsp_id").val(result.payinfo.mbsp_id);
+						$("#payinfo").val(result.payinfo.payinfo);
+						$("#p_status").val(result.payinfo.p_status);
 					
 					},
 					//스프링쪽에서 에러가 발생해서 클라이언트쪽에 표시될 때 아래코드가 실행 됨.
@@ -437,8 +447,73 @@ scratch. This page gets rid of all links and provides the needed markup only.
 					}
 				});
 
+			}
+
+
+
+			// [주문상품 개별삭제]
+			//id="popup_info"   name="order_product_detail"
+			//$("div#popup_info div#order_product_info").on("click", "삭제버튼", function() {
+			$("div#popup_info div#order_product_info").on("click", "button[name='order_product_detail']", function() {
+
+				
+				if(!confirm("삭제하시겠습니까?")) return;
+
+				// ord_code: 주문번호는 상세보기 클릭 위에 전역변수로 선언.
+
+				let pro_num = $(this).data("pro_num");
+
+				$.ajax({
+					url : '/admin/order/order_product_delete',
+					type : 'get',
+					data : {ord_code : ord_code, pro_num : pro_num},
+					dataType: 'text',
+					success : function(result){
+						if(result == "success") {
+							alert("주문상품이 삭제되었습니다.");
+							order_detail_info(); //주문상세정보 보기 함수
+						}
+					}
+				});
+
 
 			});
+
+
+
+			//기본 주문(수령)정보 수정하기. id="btn_order_basic_save"
+			$("button#btn_order_basic_save").on("click", function() {
+
+				// ord_code: 주문번호는 상세보기 클릭 위에 전역변수로 선언.
+				// mbsp_id : 세션에서 참조하면 안됨. 
+
+				let ord_basic_data = {
+					ord_code : ord_code, 
+					ord_name : $("#ord_name").val(),
+					mbsp_id : $("#mbsp_id").val(),
+					ord_addr_zipcode : $("#sample2_postcode").val(),
+					ord_addr_basic : $("#sample2_address").val(),
+					ord_addr_detail : $("#sample2_detailAddress").val(),
+					ord_tel : $("#ord_tel").val(),
+					ord_desc : $("#ord_desc").val(),
+					ord_admin_memo : $("#ord_admin_memo").val()			
+					}		
+
+				$.ajax({
+					url : '/admin/order/order_basic_modify',
+					type : 'post',
+					data : ord_basic_data,
+					dataType: 'text',
+					success : function(result){
+						if(result == "success") {
+							alert("주문정보가 수정되었습니다.");
+							order_detail_info(); //주문상세정보 보기 함수
+						}
+					}
+				});
+
+			});
+
 
 
 

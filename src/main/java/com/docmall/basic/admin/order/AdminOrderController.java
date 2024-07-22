@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.docmall.basic.common.dto.Criteria;
@@ -19,6 +20,7 @@ import com.docmall.basic.order.OrderVo;
 import com.docmall.basic.payinfo.PayInfoService;
 import com.docmall.basic.payinfo.PayInfoVo;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -94,6 +96,41 @@ public class AdminOrderController {
 	public ResponseEntity<byte[]> image_display(String dateFolderName, String fileName) throws Exception {
 		
 		return FileManagerUtils.getFile(uploadPath + dateFolderName, fileName);
+	}
+	
+	
+	//[주문상품 개별삭제]
+	@GetMapping("/order_product_delete")
+	public ResponseEntity<String> order_product_delete(Long ord_code, int pro_num) throws Exception {
+		ResponseEntity<String> entity = null;
+		
+		//db연동
+		adminOrderService.order_product_delete(ord_code, pro_num);
+		
+		
+		//<트랜젝션 작업이 필요함.>-->service에서 작업이 필요함.
+		// 주문테이블 주문금액 변동.
+		
+		// 결제테이블 주문금액 변동.
+		
+		
+		entity = new ResponseEntity<String>("success", HttpStatus.OK);
+		return entity;
+	}
+	
+	//[상세주문정보 수정]
+	@PostMapping("/order_basic_modify")  	// HttpSession session 관리자쪽은 이걸 사용하면 안된다. 이건 사용자 아이디. 관리자 아이디가 아님.
+	public ResponseEntity<String> order_basic_modify(OrderVo vo) throws Exception {
+		
+		log.info("주문기본정보:" + vo);
+		
+		ResponseEntity<String> entity = null;
+		
+		//db연동
+		adminOrderService.order_basic_modify(vo);
+		
+		entity = new ResponseEntity<String>("success", HttpStatus.OK);
+		return entity;
 	}
 	
 	

@@ -90,5 +90,31 @@
 			ot.ord_code = #{ord_code}
 	</select>
 		
+	<!-- [주문상품 개별삭제] -->
+	<delete id="order_product_delete" parameterType="map">
+		DELETE FROM
+			ordetail_tbl
+		WHERE
+			ord_code = #{ord_code}
+		AND
+			pro_num = #{pro_num}
+	</delete>
+
+	<!-- [주문기본정보 수정] -->
+	<update id="order_basic_modify" parameterType="OrderVo">
+		UPDATE
+			order_tbl
+		SET	
+			ord_name = #{ord_name}, 
+			ord_addr_zipcode = #{ord_addr_zipcode}, 
+			ord_addr_basic = #{ord_addr_basic}, 
+			ord_addr_detail = #{ord_addr_detail}, 
+			ord_tel = #{ord_tel}, 
+			ord_desc = #{ord_desc}, 
+			ord_admin_memo = #{ord_admin_memo}
+		WHERE	
+			ord_code = #{ord_code}
+	</update>
+
 
 </mapper>
