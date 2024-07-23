@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -41,15 +42,18 @@ public class AdminOrderController {
 	
 	// [주문목록 페이지]
 	@GetMapping("/order_list")
-	public void order_list(Criteria cri, Model model) throws Exception {
+	public void order_list(Criteria cri, 
+					@ModelAttribute("start_date") String start_date, 
+					@ModelAttribute("end_date") String end_date, 
+					Model model) throws Exception {
 
 		cri.setAmount(2);
-		
 		// 주문목록 불러오기
-		List<OrderVo> order_list = adminOrderService.order_list(cri);
+		List<OrderVo> order_list = adminOrderService.order_list(cri, start_date, end_date);
+		
 		
 		// 총주문데이터 가져오기
-		int totalCount = adminOrderService.getTotalCount(cri);
+		int totalCount = adminOrderService.getTotalCount(cri, start_date, end_date);
 
 		log.info("pagedto :" + new PageDTO(cri, totalCount));
 		

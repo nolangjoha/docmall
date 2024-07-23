@@ -10,10 +10,10 @@ import com.docmall.basic.order.OrderVo;
 public interface AdminOrderMapper {
 
 	// [주문목록 불러오기]
-	List<OrderVo> order_list(Criteria cri);
+	List<OrderVo> order_list(@Param("cri") Criteria cri, @Param("start_date") String start_date, @Param("end_date") String end_date);
 	
 	// [전체 주문데이터 갯수]
-	int getTotalCount(Criteria cri);
+	int getTotalCount(@Param("cri") Criteria cri, @Param("start_date") String start_date, @Param("end_date") String end_date);
 	
 	// [주문자(수령인) 정보]
 	OrderVo order_info(Long ord_code);
@@ -28,6 +28,10 @@ public interface AdminOrderMapper {
 	//[주문기본정보 수정]
 	void order_basic_modify(OrderVo vo);
 	
+	// [주문테이블의 총금액 변경] 
+	void order_tot_price_change(Long ord_code);
+	
+	//
 	
 	
 }

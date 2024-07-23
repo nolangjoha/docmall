@@ -16,17 +16,17 @@
 				 롬복으로 Criteria의 getter를 사용하고 있었는데 그것과 별개로 원하는 기능(typeArr)의 getter을 만들어주자.-->
 			<!-- 중복검색기능이 없었으면 아래 foreach구문은 안들어 갔음. -->
 			<!-- 상품명, 주문코드, 아이디 검색 등 -->
-			<foreach collection="typeArr" item="type"> <!-- typeArr라고 쓰면 getTypeArr메서드로 인식된다. 값이 3번(N,C,I) 들어오므로 3번 작동된다. -->
+			<foreach collection="cri.typeArr" item="type"> <!-- typeArr라고 쓰면 getTypeArr메서드로 인식된다. 값이 3번(N,C,I) 들어오므로 3번 작동된다. -->
 				<trim prefix="OR">
 					<choose>
 						<when test="type == 'N'.toString()">
-							ord_name like '%' || #{keyword} || '%'					
+							ord_name like '%' || #{cri.keyword} || '%'					
 						</when>
 						<when test="type == 'C'.toString()">
-							ord_code like '%' || #{keyword} || '%'
+							ord_code like '%' || #{cri.keyword} || '%'
 						</when>
 						<when test="type == 'I'.toString()">
-							mbsp_id like '%' || #{keyword} || '%'
+							mbsp_id like '%' || #{cri.keyword} || '%'
 						</when>
 					</choose>
 				</trim>
@@ -34,8 +34,23 @@
 		</trim>
 	</sql>
 	
+	<!-- 날짜 검색 -->
+	<sql id="period">
+	
+		<if test="start_date != null and !start_date.equals('') and end_date != null and !end_date.equals('')">
+		
+			<![CDATA[
+				ord_regdate >= to_date(#{start_date}) AND ord_regdate < to_date(#{end_date}) + 1 AND
+			 ]]>
+		
+		</if>
+	
+	</sql>
+	
+	
+	
 	<!-- [주문목록 불러오기] -->
-	<select id="order_list" resultType="OrderVo" parameterType="com.docmall.basic.common.dto.Criteria">
+	<select id="order_list" resultType="OrderVo" parameterType="map">
 		SELECT  
 			ord_code, mbsp_id, ord_name, ord_addr_zipcode, ord_addr_basic, ord_addr_detail, ord_tel, ord_price, ord_desc, ord_regdate
 		FROM (
@@ -45,24 +60,26 @@
 	        	order_tbl
 	    	WHERE 
 	    	<include refid="criteria"></include>
+	    	<include refid="period"></include>
 	    <![CDATA[
-	    	ROWNUM <= (#{pageNum} * #{amount}) 
+	    	ROWNUM <= (#{cri.pageNum} * #{cri.amount}) 
 	    ]]>
 	    	)
 		WHERE 
-			RN > (#{pageNum} - 1) * #{amount} 
+			RN > (#{cri.pageNum} - 1) * #{cri.amount} 
 			
 	</select> 		<!-- #{pageNum} 쓸땐 변수명을 썼지만 get메서드가 작동되고 있다. -->
 
 	<!-- ex05 mapper.xml에서 가져와서 여기 프로젝트에 맞게 수정 -->
 	<!-- 공통사항: 검색조건 추가 -->
-	<select id="getTotalCount" resultType="int">
+	<select id="getTotalCount" resultType="int" parameterType="map">
 		SELECT
 			COUNT(*)
 		FROM
 			order_tbl
 		WHERE
 			<include refid="criteria"></include> <!-- 사용자가 검색을 사용하지 않으면 값이 넘어오지 않아 이 구문 자체가 생성되지 않는다. 그럼 where절까지만 작성디고 끊기는데 그럼 에러 발생함. -->
+	    	<include refid="period"></include>
 	    	ord_code > 0 	<!-- bno > 0을 쓰면 위 구문이 생성되지 않아도 에러가 발생하지 않는다. -->
 	</select>
 
@@ -115,6 +132,27 @@
 		WHERE	
 			ord_code = #{ord_code}
 	</update>
+
+	<!--[주문테이블의 총금액 변경]  -->
+	<update id="order_tot_price_change" parameterType="Long">
+		UPDATE
+			order_tbl
+		SET
+			ord_price = (
+						SELECT SUM
+							(dt_amount * dt_price)
+						FROM
+							ordetail_tbl
+						WHERE
+							ord_code = #{ord_code}
+						)
+		WHERE
+			ord_code = #{ord_code}
+	</update>
+
+
+
+
 
 
 </mapper>

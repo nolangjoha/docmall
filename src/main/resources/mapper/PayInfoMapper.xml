@@ -32,4 +32,26 @@ seq_payinfo_id
 	
 	</select>
 
+
+	<!-- [결제테이블의 총금액 변경]  -->
+	<update id="pay_tot_price_change" parameterType="Long"> 
+		UPDATE
+			payinfo
+		SET
+			p_price = (
+						SELECT SUM
+							(dt_amount * dt_price)
+						FROM
+							ordetail_tbl
+						WHERE
+							ord_code = #{ord_code}
+						)
+		WHERE
+			ord_code = #{ord_code}
+	
+	</update>
+
+
+
+
 </mapper>

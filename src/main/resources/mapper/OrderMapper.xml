@@ -37,11 +37,15 @@ ord_code, pro_num, dt_amount, dt_price
 		INSERT INTO
 	   		ordetail_tbl(ord_code, pro_num, dt_amount, dt_price)
 		SELECT
-		    #{ord_code}, pro_num, cart_amount, pro_num*cart_amount
+		    #{ord_code}, p.pro_num, c.cart_amount, p.pro_price
 		FROM
-		     cart_tbl
+		     cart_tbl c
+		INNER JOIN
+			product_tbl p
+		ON
+			c.pro_num = p.pro_num
 		WHERE
-		    mbsp_id = #{mbsp_id}
+		    c.mbsp_id = #{mbsp_id}
 	</insert>
 
 
