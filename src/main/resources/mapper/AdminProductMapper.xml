@@ -2,8 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.docmall.basic.admin.product.AdminProductMapper">
 
+		<!-- 테이블의 컬럼명과 vo,DTO 클래스의 필드명이 다를때 사용한다. 지금은 연습차원에서 현재 컬럼명과 필드는 같은 상태 -->
+		<resultMap type="ProductVo" id="productMap">
+			<id property="pro_num" column="pro_num" />  <!-- 프라이멀키 1개 -->
+			<result property="cat_code" column="cat_code" />  <!-- 나머지 컬럼 -->
+			<result property="pro_name" column="pro_name" />
+			<result property="pro_price" column="pro_price" />
+			<result property="pro_discount" column="pro_discount" />
+			<result property="pro_publisher" column="pro_publisher" />
+			<result property="pro_content" column="pro_content" />
+			<result property="pro_up_folder" column="pro_up_folder" />
+			<result property="pro_img" column="pro_img" />
+			<result property="pro_amount" column="pro_amount" />
+			<result property="pro_buy" column="pro_buy" />
+			<result property="pro_date" column="pro_date" />
+			<result property="pro_updatedate" column="pro_updatedate" />
+		</resultMap>
+
 	<!-- [상품등록] -->
-	<insert id="pro_insert" parameterType="com.docmall.basic.admin.product.AdminProductMapper">
+	<insert id="pro_insert" parameterType="ProductVo">
 	
 		INSERT INTO
 			product_tbl(pro_num, cat_code, pro_name, pro_price, pro_discount, pro_publisher, pro_content, pro_up_folder, pro_img, pro_amount, pro_buy)
@@ -41,8 +58,8 @@
 	</sql>
 	
 	<!-- ex05 mapper.xml에서 가져와서 여기 프로젝트에 맞게 수정 -->
-	<!-- 공통사항: 검색조건 추가 -->
-	<select id="pro_list" resultType="com.docmall.basic.admin.product.ProductVo" parameterType="com.docmall.basic.common.dto.Criteria">
+	<!-- 공통사항: 검색조건 추가  resultType="com.docmall.basic.admin.product.ProductVo"-->
+	<select id="pro_list" resultMap="productMap" parameterType="com.docmall.basic.common.dto.Criteria">
 		SELECT  
 			pro_num, cat_code, pro_name, pro_price, pro_discount, pro_publisher, pro_content, pro_up_folder, pro_img, pro_amount, pro_buy, pro_date, pro_updatedate
 		FROM (
@@ -75,7 +92,7 @@
 
 
 	<!-- [상품수정 페이지] -->
-	<select id="pro_edit" resultType="com.docmall.basic.admin.product.ProductVo" parameterType="Integer">
+	<select id="pro_edit" resultType="ProductVo" parameterType="Integer">
 		SELECT
 			pro_num, cat_code, pro_name, pro_price, pro_discount, pro_publisher, pro_content, pro_up_folder, pro_img, pro_amount, pro_buy, pro_date, pro_updatedate
 		FROM
@@ -85,7 +102,7 @@
 	</select>
 
 	<!-- [상품수정기능] -->
-	<update id="pro_edit_ok" parameterType="com.docmall.basic.admin.product.ProductVo">
+	<update id="pro_edit_ok" parameterType="ProductVo">
 		UPDATE
 			product_tbl
 		SET

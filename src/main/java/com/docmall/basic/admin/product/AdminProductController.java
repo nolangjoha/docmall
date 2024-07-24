@@ -21,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.docmall.basic.admin.category.AdminCategoryService;
 import com.docmall.basic.admin.category.AdminCategoryVo;
+import com.docmall.basic.common.constants.Constants;
 import com.docmall.basic.common.dto.Criteria;
 import com.docmall.basic.common.dto.PageDTO;
 import com.docmall.basic.common.util.FileManagerUtils;
@@ -167,7 +168,7 @@ public class AdminProductController {
 	public void pro_list(Criteria cri, Model model) throws Exception {
 	
 		//페이지 수를 잠시 2로 설정
-		cri.setAmount(10);
+		cri.setAmount(Constants.ADMIN_PRODUCT_LIST_AMOUNT);
 		
 		log.info("Criteria정보: " + cri);
 		
