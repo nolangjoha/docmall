@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.docmall.basic.admin.user.AdminUserMapper">
+<!-- 
+	<resultMap type="MailmngVo" id="MailmngMap">
+		<id property="idx" column="m_idx"></id>
+		<result property="title" column="m_title" />
+		<result property="content" column="m_content" />
+		<result property="gubun" column="m_gubun" />
+		<result property="regDate" column="reg_date" />
+	</resultMap>
+ -->
+
+<!-- 
+mailmng_tbl
+m_idx, m_title, m_content, m_gubun, reg_date
+pk_mailmng_idx
+seq_mailmng_tbl 
+-->
+
+	<!-- [메일내용 DB저장] -->
+	<insert id="mailing_save" parameterType="MailmngVo">
+		INSERT INTO
+			mailmng_tbl(m_idx, m_title, m_content, m_gubun)
+		VALUES
+			(seq_mailmng_tbl.NEXTVAL, #{title}, #{content}, #{gubun})
+	</insert>
+
+	<!-- [회원테이블에서 전체 회원 메일정보를 읽어오는 작업] -->
+	<select id="getAllMailAddress" resultType="String">
+		SELECT
+			mbsp_email
+		FROM	
+			mbsp_tbl		
+	</select>
+
+
+</mapper>

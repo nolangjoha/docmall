@@ -71,8 +71,24 @@ public class EmailService {
 	
 		
 		
+	//[마케팅 메일 보낼때 사용]
+	public void sendMail(EmailDTO dto, String[] emailArr) {
 	
-	
-	
-	
+		//메일 구성정보 담당 객체(받는사람, 보내는 사람, 받는사람 메일주소, 본문내용)
+		MimeMessage mimeMessage = mailSender.createMimeMessage();
+		
+		try {
+			// 메일템플리승로 타임피르 사용목적으로 아래코드가 구성 // 위에 mimeMessage가 매개변수로 들어옴
+			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+			mimeMessageHelper.setTo(emailArr); // 메일 수진자
+			mimeMessageHelper.setFrom(new InternetAddress(dto.getSenderMail(), dto.getSenderName()));
+			mimeMessageHelper.setSubject(dto.getSubject()); //메일제목
+			mimeMessageHelper.setText(dto.getMessage(), true); //메일본문내용, HTML여부
+															//"email"은 email.html파일을 가리킨다.
+			//메일발송 기능s
+			mailSender.send(mimeMessage);		
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
