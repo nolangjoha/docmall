@@ -14,5 +14,8 @@ public final class Constants {
 	//도메인 주소
 	public static final String ROOT_URL = "http://localhost:9090";
 	
+	//관리자 주문리스트 춮력갯수
+	public static final int ADMIN_MAILING_LIST_AMOUNT = 2;
+	
 	
 }

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.docmall.basic.admin.user.AdminUserMapper">
-<!-- 
+
 	<resultMap type="MailmngVo" id="MailmngMap">
 		<id property="idx" column="m_idx"></id>
 		<result property="title" column="m_title" />
 		<result property="content" column="m_content" />
 		<result property="gubun" column="m_gubun" />
+		<result property="sendcount" column="m_send_count" />
 		<result property="regDate" column="reg_date" />
 	</resultMap>
- -->
-
+ 
 <!-- 
 mailmng_tbl
 m_idx, m_title, m_content, m_gubun, reg_date
@@ -20,10 +20,18 @@ seq_mailmng_tbl
 
 	<!-- [메일내용 DB저장] -->
 	<insert id="mailing_save" parameterType="MailmngVo">
+		
+		<selectKey keyProperty="idx" resultType="Integer" order="BEFORE">
+			SELECT
+				seq_mailmng_tbl.NEXTVAL
+			FROM
+				dual		
+		</selectKey>
+		
 		INSERT INTO
 			mailmng_tbl(m_idx, m_title, m_content, m_gubun)
 		VALUES
-			(seq_mailmng_tbl.NEXTVAL, #{title}, #{content}, #{gubun})
+			(#{idx}, #{title}, #{content}, #{gubun})
 	</insert>
 
 	<!-- [회원테이블에서 전체 회원 메일정보를 읽어오는 작업] -->
@@ -33,6 +41,75 @@ seq_mailmng_tbl
 		FROM	
 			mbsp_tbl		
 	</select>
+
+	<!-- [메일발송 횟수 업데이트] -->
+	<update id="mailSendCountUpdate" parameterType="int">
+		UPDATE
+			mailmng_tbl
+		SET
+			m_send_count = m_send_count + 1
+		WHERE
+			m_idx = #{idx}
+	</update>
+
+	
+	<!-- 검색조건 -->
+	<sql id="mailsearch">
+		<if test="title != null and !title.equals('')">AND m_title like '%' || #{title} || '%'</if>
+	</sql>
+	
+	<!-- [메일링 목록 불러오기] 조건이 1개 이기 때문에 sql문을 추가하진 않겠다. -->
+	<select id="getMailInfoList" resultMap="MailmngMap" parameterType="com.docmall.basic.common.dto.Criteria">
+		SELECT  
+			m_idx, m_title, m_content, m_gubun, m_send_count, reg_date
+		FROM (
+	    	SELECT /*+ INDEX_DESC(mailmng_tbl PK_MAILMNG_IDX) */
+	        	ROWNUM AS RN, m_idx, m_title, m_content, m_gubun, m_send_count, reg_date
+	    	FROM 
+	        	mailmng_tbl 
+	    	WHERE 
+	    		1 = 1
+
+				<include refid="mailsearch"></include>
+
+	    <![CDATA[
+	    	AND ROWNUM <= (#{cri.pageNum} * #{cri.amount}) 
+	    ]]>
+	    	)
+		WHERE 
+			RN > (#{cri.pageNum} - 1) * #{cri.amount} 
+	</select> 
+
+	<!-- [메일링 데이터 총갯수] -->
+	<select id="getMailListCount" parameterType="String" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			mailmng_tbl 
+		WHERE
+			1 = 1
+			<include refid="mailsearch"></include>
+	</select>
+
+	<!-- [발송메일링 정보] -->
+	<select id="getMailSendInfo" resultMap="MailmngMap" parameterType="int">
+		SELECT
+			m_idx, m_title, m_content, m_gubun, m_send_count, reg_date
+		FROM
+			mailmng_tbl 
+		WHERE
+			m_idx = #{m_idx}
+	</select>
+
+	<!-- [메일링 수정] -->
+	<update id="mailingedit" parameterType="MailmngVo">
+		UPDATE
+			mailmng_tbl
+		SET
+			m_title = #{title}, m_content = #{content}, m_gubun = #{gubun}, reg_date = sysdate
+		WHERE
+			m_idx = #{idx}	
+	</update>
 
 
 </mapper>

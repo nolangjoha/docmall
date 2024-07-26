@@ -36,7 +36,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                   <h3 class="box-title">이메일 발송 목록</h3>
                 </div><!-- /.box-header -->
                 <!-- form start -->
-                <form name="mailingform" id="mailingform" action="/admin/user/mailingprocess" method="post" class="form-horizontal">
+                <form name="mailingmodifyform" id="mailingmodifyform" action="/admin/user/mailingedit" method="post" class="form-horizontal">
                   <div class="box-body">
                     
                     <div class="form-group row">
@@ -55,7 +55,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     <div class="form-group row">
                       <label for="title" class="col-sm-1 col-form-label">메일링 제목</label>
                       <div class="col-sm-11">
-                        <input type="hidden" name="idx" th:value="${idx}">
+                        <input type="hidden" name="idx" th:value="${vo.idx}">
                         <input type="text" class="form-control" name="title" id="title" placeholder="메일링 제목..." th:value="${vo.title}">  <!--input태그는 th:value-->
                       </div>
                     </div>
@@ -70,7 +70,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
                   </div><!-- /.box-body -->
                   <div class="box-footer text-center">
-                    <button type="button" id="btn_mail_save" class="btn btn-primary" >저장</button>
+                    <button type="submit" id="btn_mail_modify" class="btn btn-primary" >수정</button>
                     <button type="button" id="btn_mail_send" class="btn btn-primary" >발송</button>
                     <button type="button" id="btn_mail_list" class="btn btn-primary" >목록</button> 
                     <!-- form태그 안에서 submit이 3개 있으면 모두 똑같이 작동한다, form의 action이 작동하는 것.때문에 제이쿼리작업 필요 -->                   
@@ -96,11 +96,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
 	<th:block layout:fragment="script">
     <script th:inline = "javascript">
       let msg = [[${msg}]];  // AdminUserController.java에서 mailingsave메서드에서 redirect를 사용하지 않아 null값이 됨.
-      if(msg == "save") {
-        alert("메일정보가 저장됨.");
+      if(msg == "modify") {
+        alert("메일정보가 수정됨.");
       }
 
     </script>
+
 
     <script>
 
@@ -123,29 +124,18 @@ scratch. This page gets rid of all links and provides the needed markup only.
         
 
         // form 전역변수
-        let mailingform = $("#mailingform");
-
-        // 메일 저장, 버튼 : id="btn_mail_save"
-        $("#btn_mail_save").on("click", function() {
-          mailingform.attr("action", "/admin/user/mailingsave"); //속성변경
-          mailingform.submit(); 
-        });
+        let mailingmodifyform = $("#mailingmodifyform");
 
         // 메일 보내기, 버튼 : id="btn_mail_send"
         $("#btn_mail_send").on("click", function() {
-          mailingform.attr("action", "/admin/user/mailingsend");
-          mailingform.submit(); 
+          mailingmodifyform.attr("action", "/admin/user/mailingsend");
+          mailingmodifyform.submit(); 
         });
 
-
-        // 메일목록, 버튼 : id="btn_mail_list"
+        // 메일목록  id="btn_mail_list" 
         $("#btn_mail_list").on("click", function() {
-          location.href = "/admin/user/mailinglist"; 
+          location.href = "/admin/user/mailinglist";
         });
-
-
-
-
 
 
 
