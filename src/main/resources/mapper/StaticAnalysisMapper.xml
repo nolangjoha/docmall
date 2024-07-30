@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.docmall.basic.admin.staticanalysis.StaticAnalysisMapper">
+
+	<select id="monthlySalesStatusByTopCategory" parameterType="String" resultType="hashmap">
+		select 
+	        c.cat_name primary_cd, sum(d.dt_amount * d.dt_price) sales_p
+	    from 
+	        product_tbl p inner join ordetail_tbl d
+	    on 
+	        p.pro_num=d.pro_num
+	    inner join (select c2.cat_name, c1.cat_code from category_tbl c1, category_tbl c2 where c1.cat_prtcode=c2.cat_code) c
+	    	on p.cat_code=c.cat_code
+	    inner join 
+	        order_tbl o
+	    on 
+	        o.ord_code=d.ord_code
+	    and 
+	        TO_CHAR(o.ord_regdate, 'YYYY/MM') =  #{ord_date}               
+	    group by 
+	        c.cat_name, TO_CHAR(o.ord_regdate, 'YYYY/MM')
+	    order by 
+	        c.cat_name
+	</select>
+
+
+
+</mapper>

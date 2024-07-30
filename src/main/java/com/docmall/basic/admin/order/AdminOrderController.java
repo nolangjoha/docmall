@@ -64,6 +64,26 @@ public class AdminOrderController {
 		model.addAttribute("pageMaker", new PageDTO(cri, totalCount));
 	}
 	
+	// [주문목록2] mybatis에서 resulttype="hashmap" 사용예제.
+	@GetMapping("/order_list2")
+	public String order_list2(Criteria cri, 
+					@ModelAttribute("start_date") String start_date, 
+					@ModelAttribute("end_date") String end_date, 
+					Model model) throws Exception {
+
+		cri.setAmount(Constants.ADMIN_ORDER_LIST_AMOUNT);
+		
+		// 주문목록 불러오기
+		List<Map<String, Object>>  order_list = adminOrderService.order_list2();
+		
+		// 뷰에서 사용할 데이터값의 이름 model로 지정
+		model.addAttribute("order_list", order_list);
+		
+		return "/admin/order/order_list_map";
+	}
+	
+	
+	
 	
 	// [주문 상세정보] $("#popup_info").load("/admin/order/order_info?ord_code=" + ord_code); // ajax성격이지만 load메서드를 이용하므로 responseEntity를 사용하는 것이 아니라 일반 성격으로 불러와야 한다.
 	@GetMapping("/order_detail_info")
@@ -139,5 +159,7 @@ public class AdminOrderController {
 		return entity;
 	}
 	
+	
+
 	
 }

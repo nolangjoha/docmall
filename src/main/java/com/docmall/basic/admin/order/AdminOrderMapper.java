@@ -1,6 +1,7 @@
 package com.docmall.basic.admin.order;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -11,6 +12,13 @@ public interface AdminOrderMapper {
 
 	// [주문목록 불러오기]
 	List<OrderVo> order_list(@Param("cri") Criteria cri, @Param("start_date") String start_date, @Param("end_date") String end_date);
+	
+	
+	// [주문목록2] mybatis에서 resulttype="hashmap" 사용예제.
+	List<Map<String, Object>> order_list2(); 
+	//key(String)가 컬럼명이 되고, value(Object)는 컬럼명의 데이터
+	//데이터가 여러개면 List로 한번더 감싸줘야 한다.
+	
 	
 	// [전체 주문데이터 갯수]
 	int getTotalCount(@Param("cri") Criteria cri, @Param("start_date") String start_date, @Param("end_date") String end_date);

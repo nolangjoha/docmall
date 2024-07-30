@@ -70,6 +70,41 @@
 			
 	</select> 		<!-- #{pageNum} 쓸땐 변수명을 썼지만 get메서드가 작동되고 있다. -->
 
+
+
+	<!-- [주문목록2] mybatis에서 resulttype="hashmap" 사용예제. -->
+	<select id="order_list2" resultType="hashmap">
+		SELECT  
+		    o.ord_code, 
+		    o.mbsp_id, 
+		    ord_name, 
+		    o.ord_addr_zipcode, 
+		    o.ord_addr_basic, 
+		    o.ord_addr_detail, 
+		    o.ord_tel, 
+		    o.ord_price,
+		    ot.pro_num, 
+		    ot.dt_amount, 
+		    ot.dt_price, 
+		    p.pro_name, 
+		    p.pro_up_folder, 
+		    p.pro_img
+		FROM 
+			order_tbl o 
+		INNER JOIN 
+			ordetail_tbl ot
+		ON 
+			o.ord_code = ot.ord_code
+		INNER JOIN 
+			product_tbl p
+		ON 
+			ot.pro_num = p.pro_num
+	</select> 	
+
+
+
+
+
 	<!-- ex05 mapper.xml에서 가져와서 여기 프로젝트에 맞게 수정 -->
 	<!-- 공통사항: 검색조건 추가 -->
 	<select id="getTotalCount" resultType="int" parameterType="map">

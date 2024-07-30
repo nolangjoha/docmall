@@ -1,6 +1,7 @@
 package com.docmall.basic.admin.order;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,13 @@ public class AdminOrderService {
 	public List<OrderVo> order_list(Criteria cri, String start_date, String end_date) {
 		return adminOrderMapper.order_list(cri, start_date, end_date);
 	}
+	
+	// [주문목록2] mybatis에서 resulttype="hashmap" 사용예제.
+	public List<Map<String, Object>> order_list2() {
+		return adminOrderMapper.order_list2();
+	}
+	
+	
 	
 	//[전체 주문데이터 갯수]
 	public int getTotalCount(Criteria cri, String start_date, String end_date) {

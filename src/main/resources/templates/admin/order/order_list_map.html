@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+	<table class="table">
+	  <thead>
+	    <tr>
+	      <th scope="col">주문번호</th>
+	      <th scope="col">아이디</th>
+	      <th scope="col">주문금액</th>
+	      <th scope="col">상품명</th>
+	    </tr>
+	  </thead>
+	  <tbody>	<!-- 데이터 값들을 대문자로 써줘야 한다. 계층구조에따라 들어가는 구조가 다를 수 있다. -->
+	    <tr th:each="order : ${order_list}"> <!-- order이 map1개의 데이터를 갖게된다. -->
+	      <th th:text="${order['ORD_CODE']}"></th> <!-- key값을 여기에 작성함. -->
+	      <td th:text="${order['MBSP_ID']}">Mark</td>
+	      <td th:text="${order['ORD_PRICE']}">Otto</td>
+	      <td th:text="${order['ORD_NAME']}">@mdo</td>
+	    </tr>
+	  </tbody>
+	</table>
+
+
+</body>
+</html>
