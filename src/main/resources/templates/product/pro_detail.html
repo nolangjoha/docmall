@@ -216,226 +216,234 @@
 
 
 
-	  // [상품 후기와 페이징 정보를 호출하는 작업]
-	  let reviewPage = 1;  //첫번째 페이지
-//	  let url = "상품 후기와 페이징 정보를 요청하는 주소"; ReviewController에서 만든거  /revlist/{pro_num}/{page}
-	  let url = "/review/revlist/" + [[${product.pro_num}]] + "/" + reviewPage;
-	  console.log("상품후기주소", url);
-    
-	  
-	  getReviewList(url);  // 이걸 호출해서 아래 코드가 동작 되게 해야 한다.
-
-	  //ajax문법을 통한 주소요청 작업 //   $.ajx , load(), getJSON() :ajax기능을 제공해줌.
-	  function getReviewList(url) {
-		$.getJSON(url, function(reviewlist) { //url이 실행되면 function(reviewlist)로 받음. 이건 우리가 임의로 작성하는 것.ajax
-			console.log("reviewlist", reviewlist.revlist);
-			console.log("reviewlist", reviewlist.pageMaker);
-
-			//함수호출
-			print_reviewlist(reviewlist.revlist, $("#review_list"), $("#review-template"))
-			print_paging(reviewlist.pageMaker, $("#review_paging"));
+		// [상품 후기와 페이징 정보를 호출하는 작업]
+		let reviewPage = 1;  //첫번째 페이지
+		//let url = "상품 후기와 페이징 정보를 요청하는 주소"; ReviewController에서 만든거  /revlist/{pro_num}/{page}
+		let url = "/review/revlist/" + [[${product.pro_num}]] + "/" + reviewPage;
+		console.log("상품후기주소", url);
 		
-		});
-	  }
-
-	  // 상품 후기 ui작업 ///핸들바 템플릿 이용				// reviewlist.revlist가 reviewData로 들어간다.
-	  let print_reviewlist = function(reviewData, target, template) {
-		let templateObj = Handlebars.compile(template.html()); // 템플릿 문법검사및 참조
-		let reviewHtml = templateObj(reviewData);
-		target.children().remove();
-		target.append(reviewHtml);
-	}
-
-	  //페이징 ui작업  //로직으로 작업
-	  let print_paging = function(pageData, target) {
-		let str = `<nav aria-label="Page navigation example">`;
-			str += `<ul class="pagination">`;
-
-            //이전표시여부
-            if(pageData.prev) {
-                str += `<li class="page-item">`;
-                str += ` <a class="page-link" href="${pageData.startPage - 1}" aria-label="Previous">`;
-                str += `<span aria-hidden="true">이전</span>`;
-                str += `</a>`;
-                str += `</li>`;
-            }
-
-
-            //페이지 번호 표시
-            for(let i=pageData.startPage; i<=pageData.endPage; i++) {
-                let className = pageData.cri.pageNum == i ? 'active' : '';
-                str += `<li class="page-item ${className}"><a class="page-link" href="${i}">${i}</a></li>`;        
-            }
-           
-            //다음표시여부
-            if(pageData.next) {
-                str += `<li class="page-item">`;
-                str += ` <a class="page-link" href="${pageData.endPage + 1}" aria-label="Next">`;
-                str += `<span aria-hidden="true">다음</span>`;
-                str += `</a>`;
-                str += `</li>`;
-            }
-
-
-			//target에 값을 추가해준다
-			target.html(str);
-	  }
-
-
-
-	  
-	  //핸들바 함수 : 평점표시//  handlebar template에서 사용 목적
-	  Handlebars.registerHelper("displayStar", function(rating) {
-
-		let star = "";
-		switch(rating) {
-			case 1:
-				star = "★☆☆☆☆";
-				break;
-			case 2:
-				star = "★★☆☆☆";
-				break;
-			case 3:
-				star = "★★★☆☆";
-				break;
-			case 4:
-				star = "★★★★☆";
-				break;
-			case 5:
-				star = "★★★★★";
-				break;
-		}
-		return star;
-	  });
-	  
-	  //행들바함수 : 날짜 포맷 (2024/07/10)
-	  Handlebars.registerHelper("convertDate", function(re_date) {
-		const d = new Date(re_date);
-
-		let year = d.getFullYear();
-		let month = d.getMonth() + 1;
-		let date = d.getDate();
-		let hour = d.getHours();
-		let minute = d.getMinutes();
-
-		return `${year}/${month}/${date}/${hour}:${minute}`;
-	  });
-
-	  // 핸들바함수 : 작성자와 로그인사용자가 일치되는 경우 수정, 삭제 버튼 표시
-	  Handlebars.registerHelper("authControlView", function(mbsp_id, re_code) {
 		
+		getReviewList(url);  // 이걸 호출해서 아래 코드가 동작 되게 해야 한다.
 
-		let loginVo = [[${session.login_status}]];  //로그인 상태
+		//ajax문법을 통한 주소요청 작업 //   $.ajx , load(), getJSON() :ajax기능을 제공해줌.
+		function getReviewList(url) {
+			$.getJSON(url, function(reviewlist) { //url이 실행되면 function(reviewlist)로 받음. 이건 우리가 임의로 작성하는 것.ajax
+				console.log("reviewlist", reviewlist.revlist);
+				console.log("reviewlist", reviewlist.pageMaker);
 
-		let loginId = "";  // 로그인 아이디 초기화
-		if(loginVo != null) {	// 로그인상태가 없지 않다. > 로그인 상태라면
-			loginId = [[${session.login_status == null ? '' : session.login_status.mbsp_id}]];  // 로그인 상태가 null라면 공백, 로그인 상태라면 리뷰작성자의 아이디값을 대입하라.
-		}
-		// session.login_status.mbsp_id는 서버 코드는 먼저 작동한다(주석을 걸어도 이미 그전에 실행 됨.). 그걸 막기 위해 삼항연산자로 접근한다.
-		//console.log(loginId);
-
-
-
-
-		//로그인 아이디와 리뷰작성자가 같은 사람이면
-		let str = "";
-
-		if(loginVo !== null && loginId == mbsp_id) {	// 로그인 상태고 로그인 아이디가 리뷰를 작성자의 아이디와 같다면
-			str += `<button type="button" name="btn_review_edit" class="btn btn-link" data-re_code="${re_code}">수정</button>`;
-			str += `<button type="button" name="btn_review_delete" class="btn btn-link" data-re_code="${re_code}">삭제</button>`;
-		
-		return new Handlebars.SafeString(str);  // 수정, 삭제 버튼을 출력하겠다.
-		}else {
-			return "";
-		}
-
-	  });
-
-	  
-	  //페이징 클릭 이벤트
-	$("#review_paging").on("click", "nav ul.pagination a", function(e) {
-		e.preventDefault(); 
-		reviewPage = $(this).attr("href"); //선택한 페이지 번호값이 들어감.
-
-		url = "/review/revlist/" + [[${product.pro_num}]] + "/" + reviewPage;
-
-	 	getReviewList(url);
-
-	});
-
-	// 상품후기 modal
-	$("#btn_review_modal").on("click", function() {
+				//함수호출
+				print_reviewlist(reviewlist.revlist, $("#review_list"), $("#review-template"))
+				print_paging(reviewlist.pageMaker, $("#review_paging"));
 			
-		$("#btn_review_save").show();
-		$("#btn_review_modify").hide();
-		$("#review_modal").modal('show');
-	});
+			});
+	  }
 
-	// 별평점 클릭
-	$("p#star_re_rate a.re_rate").on("click", function(e) {
-		e.preventDefault(); //링크 기능 제거
-
-		$(this).parent().children().removeClass("on"); // on이란 선택자를 제거, 마음이 바껴서 3번 별 눌렀다가 4번별 누르면 제거하고 다시 실행.
-		$(this).addClass("on").prevAll("a").addClass("on"); // 현재 선택한 별과 이전 별까지 on선택자 추가.
-	});
-
-	//상품후기 저장. id="btn_review_save"
-	$("button#btn_review_save").on("click", function() {
-		let pro_num = $(this).data("pro_num");
-		console.log(pro_num);
-	
-		let re_title = $("#re_title").val();
-		console.log(re_title);
-		let re_content = $("#re_content").val();
-		let re_rate = 0;
-
-		$("p#star_re_rate a.re_rate").each(function () {
-			if($(this).attr("class") == "re_rate on") {
-				re_rate += 1;
-			}
-		});
-	
-		// 유효성검사
-		if(re_title == "") {
-			alert("제목을 입력하세요");
-			return;
+		// 상품 후기 ui작업 ///핸들바 템플릿 이용				// reviewlist.revlist가 reviewData로 들어간다.
+		let print_reviewlist = function(reviewData, target, template) {
+			let templateObj = Handlebars.compile(template.html()); // 템플릿 문법검사및 참조
+			let reviewHtml = templateObj(reviewData);
+			target.children().remove();
+			target.append(reviewHtml);
 		}
 
-		if(re_content == "") {
-			alert("내용을 입력하세요");
-			return;
-		}
+		//페이징 ui작업  //로직으로 작업
+		let print_paging = function(pageData, target) {
+			let str = `<nav aria-label="Page navigation example">`;
+				str += `<ul class="pagination">`;
 
-		if(re_rate == 0) {
-			alert("평점을 선택하세요");
-		return;
-		}
-
-		// 자바스크립트 오브젝트 문법으로 정보를 전달.
-		let review_data = {pro_num : pro_num, re_title : re_title, re_content : re_content, re_rate : re_rate};
-
-		// ajax로 오브젝트 데이터를 넘기겠음
-		$.ajax({
-			url:'/review/review_save',
-			//브라우저는 요청방식이 get,post만 지원하는것이 대부분이다. 
-			//그래서 REST API개발에서는  get,post, delete, put, patch요청방식을 지원하므로, 
-			// 스프링 컨트롤러에서 rest api로 매핑주소가 설정되어 있으면, 
-			// 아래와 같이["X-HTTP-Method-Override" : "요청방식"]으로 코드를 구성해줘야, 정상적으로 스프링 주소를 호출할 수 있다.
-			headers : {
-				"Content-Type" : "application/json", "X-HTTP-Method-Override" : "POST"
-			},
-			type : 'post',
-			data : JSON.stringify(review_data),  // 자바스크립트 object문법을 json으로 변환 하는 작업.
-			dataType: 'text',
-			success: function(result) {
-				if(result == "success") {
-					alert("상품후기가 등록되었습니다.");
-					$("#review_modal").modal('hide');
-					getReviewList(url); //상품후기 목록과 페이징 정보 갱신
+				//이전표시여부
+				if(pageData.prev) {
+					str += `<li class="page-item">`;
+					str += ` <a class="page-link" href="${pageData.startPage - 1}" aria-label="Previous">`;
+					str += `<span aria-hidden="true">이전</span>`;
+					str += `</a>`;
+					str += `</li>`;
 				}
+
+
+				//페이지 번호 표시
+				for(let i=pageData.startPage; i<=pageData.endPage; i++) {
+					let className = pageData.cri.pageNum == i ? 'active' : '';
+					str += `<li class="page-item ${className}"><a class="page-link" href="${i}">${i}</a></li>`;        
+				}
+			
+				//다음표시여부
+				if(pageData.next) {
+					str += `<li class="page-item">`;
+					str += ` <a class="page-link" href="${pageData.endPage + 1}" aria-label="Next">`;
+					str += `<span aria-hidden="true">다음</span>`;
+					str += `</a>`;
+					str += `</li>`;
+				}
+
+
+				//target에 값을 추가해준다
+				target.html(str);
+		}
+
+
+
+	  
+		//핸들바 함수 : 평점표시//  handlebar template에서 사용 목적
+		Handlebars.registerHelper("displayStar", function(rating) {
+
+			let star = "";
+			switch(rating) {
+				case 1:
+					star = "★☆☆☆☆";
+					break;
+				case 2:
+					star = "★★☆☆☆";
+					break;
+				case 3:
+					star = "★★★☆☆";
+					break;
+				case 4:
+					star = "★★★★☆";
+					break;
+				case 5:
+					star = "★★★★★";
+					break;
 			}
+			return star;
 		});
-	});
+	  
+		//행들바함수 : 날짜 포맷 (2024/07/10)
+		Handlebars.registerHelper("convertDate", function(re_date) {
+			const d = new Date(re_date);
+
+			let year = d.getFullYear();
+			let month = d.getMonth() + 1;
+			let date = d.getDate();
+			let hour = d.getHours();
+			let minute = d.getMinutes();
+
+			return `${year}/${month}/${date}/${hour}:${minute}`;
+		});
+
+		// 핸들바함수 : 작성자와 로그인사용자가 일치되는 경우 수정, 삭제 버튼 표시
+		Handlebars.registerHelper("authControlView", function(mbsp_id, re_code) {
+			
+
+			let loginVo = [[${session.login_status}]];  //로그인 상태
+
+			let loginId = "";  // 로그인 아이디 초기화
+			if(loginVo != null) {	// 로그인상태가 없지 않다. > 로그인 상태라면
+				loginId = [[${session.login_status == null ? '' : session.login_status.mbsp_id}]];  // 로그인 상태가 null라면 공백, 로그인 상태라면 리뷰작성자의 아이디값을 대입하라.
+			}
+			// session.login_status.mbsp_id는 서버 코드는 먼저 작동한다(주석을 걸어도 이미 그전에 실행 됨.). 그걸 막기 위해 삼항연산자로 접근한다.
+			//console.log(loginId);
+
+
+
+
+			//로그인 아이디와 리뷰작성자가 같은 사람이면
+			let str = "";
+
+			if(loginVo !== null && loginId == mbsp_id) {	// 로그인 상태고 로그인 아이디가 리뷰를 작성자의 아이디와 같다면
+				str += `<button type="button" name="btn_review_edit" class="btn btn-link" data-re_code="${re_code}">수정</button>`;
+				str += `<button type="button" name="btn_review_delete" class="btn btn-link" data-re_code="${re_code}">삭제</button>`;
+			
+			return new Handlebars.SafeString(str);  // 수정, 삭제 버튼을 출력하겠다.
+			}else {
+				return "";
+			}
+
+		});
+
+	  
+		//페이징 클릭 이벤트
+		$("#review_paging").on("click", "nav ul.pagination a", function(e) {
+			e.preventDefault(); 
+			reviewPage = $(this).attr("href"); //선택한 페이지 번호값이 들어감.
+
+			url = "/review/revlist/" + [[${product.pro_num}]] + "/" + reviewPage;
+
+			getReviewList(url);
+
+		});
+
+		// 상품후기 modal
+		$("#btn_review_modal").on("click", function() {
+				
+			$("#btn_review_save").show();
+			$("#btn_review_modify").hide();
+			$("#review_modal").modal('show');
+		});
+
+		// 별평점 클릭
+		$("p#star_re_rate a.re_rate").on("click", function(e) {
+			e.preventDefault(); //링크 기능 제거
+
+			$(this).parent().children().removeClass("on"); // on이란 선택자를 제거, 마음이 바껴서 3번 별 눌렀다가 4번별 누르면 제거하고 다시 실행.
+			$(this).addClass("on").prevAll("a").addClass("on"); // 현재 선택한 별과 이전 별까지 on선택자 추가.
+		});
+
+		//상품후기 저장. id="btn_review_save"
+		$("button#btn_review_save").on("click", function() {
+			let pro_num = $(this).data("pro_num");
+			console.log(pro_num);
+		
+			let re_title = $("#re_title").val();
+			console.log(re_title);
+			let re_content = $("#re_content").val();
+			let re_rate = 0;
+
+			$("p#star_re_rate a.re_rate").each(function () {
+				if($(this).attr("class") == "re_rate on") {
+					re_rate += 1;
+				}
+			});
+		
+			// 유효성검사
+			if(re_title == "") {
+				alert("제목을 입력하세요");
+				return;
+			}
+
+			if(re_content == "") {
+				alert("내용을 입력하세요");
+				return;
+			}
+
+			if(re_rate == 0) {
+				alert("평점을 선택하세요");
+			return;
+			}
+
+			// 자바스크립트 오브젝트 문법으로 정보를 전달.
+			let review_data = {pro_num : pro_num, re_title : re_title, re_content : re_content, re_rate : re_rate};
+
+			// ajax로 오브젝트 데이터를 넘기겠음
+			$.ajax({
+				url:'/review/review_save',
+				//브라우저는 요청방식이 get,post만 지원하는것이 대부분이다. 
+				//그래서 REST API개발에서는  get,post, delete, put, patch요청방식을 지원하므로, 
+				// 스프링 컨트롤러에서 rest api로 매핑주소가 설정되어 있으면, 
+				// 아래와 같이["X-HTTP-Method-Override" : "요청방식"]으로 코드를 구성해줘야, 정상적으로 스프링 주소를 호출할 수 있다.
+				headers : {
+					"Content-Type" : "application/json", "X-HTTP-Method-Override" : "POST"
+				},
+				type : 'post',
+				data : JSON.stringify(review_data),  // 자바스크립트 object문법을 json으로 변환 하는 작업.
+				dataType: 'text',
+				success: function(result) {
+					if(result == "success") {
+						alert("상품후기가 등록되었습니다.");
+						$("#review_modal").modal('hide');
+						getReviewList(url); //상품후기 목록과 페이징 정보 갱신
+					}
+				},
+				beforeSend : function(xhr) {
+					xhr.setRequestHeader("AJAX", "true");
+				},
+				error : function() {
+					location.href = "/user/login";
+				}
+
+
+			});
+		});
 
 		// 상품후기 수정폼 name="btn_review_edit"
 		$("div#review_list").on("click", "button[name='btn_review_edit']", function() {
@@ -477,101 +485,101 @@
 			});
 		});
 
-	// 상품후기 수정기능
-	$("button#btn_review_modify").on("click", function() {
-		let pro_num = $(this).data("pro_num");
-		console.log(pro_num);
-	
-		let re_code = $("#re_code").val();
-		let re_title = $("#re_title").val();
-		let re_content = $("#re_content").val();
-		let re_rate = 0;
-
-		$("p#star_re_rate a.re_rate").each(function () {
-			if($(this).attr("class") == "re_rate on") {
-				re_rate += 1;
-			}
-		});
-	
-		// 유효성검사
-		if(re_title == "") {
-			alert("제목을 입력하세요");
-			return;
-		}
-
-		if(re_content == "") {
-			alert("내용을 입력하세요");
-			return;
-		}
-
-		if(re_rate == 0) {
-			alert("평점을 선택하세요");
-		return;
-		}
-
-		// 자바스크립트 오브젝트 문법으로 정보를 전달.
-		let review_data = {pro_num : pro_num, re_title : re_title, re_content : re_content, re_rate : re_rate, re_code : re_code};
-
-		// ajax로 오브젝트 데이터를 넘기겠음
-		$.ajax({
-			url:'/review/review_modify',
-			//브라우저는 요청방식이 get,post만 지원하는것이 대부분이다. 
-			//그래서 REST API개발에서는  get,post, delete, put, patch요청방식을 지원하므로, 
-			// 스프링 컨트롤러에서 rest api로 매핑주소가 설정되어 있으면, 
-			// 아래와 같이["X-HTTP-Method-Override" : "요청방식"]으로 코드를 구성해줘야, 정상적으로 스프링 주소를 호출할 수 있다.
-			headers : {
-				"Content-Type" : "application/json", "X-HTTP-Method-Override" : "PUT"
-			},
-			type : 'put',
-			data : JSON.stringify(review_data),  // 자바스크립트 object문법을 json으로 변환 하는 작업.
-			dataType: 'text',
-			success: function(result) {
-				if(result == "success") {
-					alert("상품후기가 수정되었습니다.");
-					$("#review_modal").modal('hide');
-					getReviewList(url); //상품후기 목록과 페이징 정보 갱신
-				}
-			}
-		});
-	});
-
-
-
-
-	// 상품후기 삭제 클릭 name="btn_review_delete"
-	$("div#review_list").on("click", "button[name='btn_review_delete']", function() {
-		if(!confirm("상품후기를 삭제하시겠습니까?")) return;
-
-		let re_code = $(this).data("re_code");
-		$.ajax({
-			url:'/review/review_delete/' + re_code,
-			headers : {
-				"Content-Type" : "application/json", "X-HTTP-Method-Override" : "DELETE"
-			},
-			type : 'delete',
-			dataType: 'text',
-			success: function(result) {
-				if(result == "success") {
-					alert("상품후기가 삭제되었습니다.");
-					getReviewList(url); //상품후기 목록과 페이징 정보 갱신
-				}
-			}
-		});
+		// 상품후기 수정기능
+		$("button#btn_review_modify").on("click", function() {
+			let pro_num = $(this).data("pro_num");
+			console.log(pro_num);
 		
-	});
+			let re_code = $("#re_code").val();
+			let re_title = $("#re_title").val();
+			let re_content = $("#re_content").val();
+			let re_rate = 0;
+
+			$("p#star_re_rate a.re_rate").each(function () {
+				if($(this).attr("class") == "re_rate on") {
+					re_rate += 1;
+				}
+			});
+		
+			// 유효성검사
+			if(re_title == "") {
+				alert("제목을 입력하세요");
+				return;
+			}
+
+			if(re_content == "") {
+				alert("내용을 입력하세요");
+				return;
+			}
+
+			if(re_rate == 0) {
+				alert("평점을 선택하세요");
+			return;
+			}
+
+			// 자바스크립트 오브젝트 문법으로 정보를 전달.
+			let review_data = {pro_num : pro_num, re_title : re_title, re_content : re_content, re_rate : re_rate, re_code : re_code};
+
+			// ajax로 오브젝트 데이터를 넘기겠음
+			$.ajax({
+				url:'/review/review_modify',
+				//브라우저는 요청방식이 get,post만 지원하는것이 대부분이다. 
+				//그래서 REST API개발에서는  get,post, delete, put, patch요청방식을 지원하므로, 
+				// 스프링 컨트롤러에서 rest api로 매핑주소가 설정되어 있으면, 
+				// 아래와 같이["X-HTTP-Method-Override" : "요청방식"]으로 코드를 구성해줘야, 정상적으로 스프링 주소를 호출할 수 있다.
+				headers : {
+					"Content-Type" : "application/json", "X-HTTP-Method-Override" : "PUT"
+				},
+				type : 'put',
+				data : JSON.stringify(review_data),  // 자바스크립트 object문법을 json으로 변환 하는 작업.
+				dataType: 'text',
+				success: function(result) {
+					if(result == "success") {
+						alert("상품후기가 수정되었습니다.");
+						$("#review_modal").modal('hide');
+						getReviewList(url); //상품후기 목록과 페이징 정보 갱신
+					}
+				}
+			});
+		});
+
+
+
+
+		// 상품후기 삭제 클릭 name="btn_review_delete"
+		$("div#review_list").on("click", "button[name='btn_review_delete']", function() {
+			if(!confirm("상품후기를 삭제하시겠습니까?")) return;
+
+			let re_code = $(this).data("re_code");
+			$.ajax({
+				url:'/review/review_delete/' + re_code,
+				headers : {
+					"Content-Type" : "application/json", "X-HTTP-Method-Override" : "DELETE"
+				},
+				type : 'delete',
+				dataType: 'text',
+				success: function(result) {
+					if(result == "success") {
+						alert("상품후기가 삭제되었습니다.");
+						getReviewList(url); //상품후기 목록과 페이징 정보 갱신
+					}
+				}
+			});
+			
+		});
 
 	
-	//바로구매 id="btn_direct_buy" , id="btn_cart_amount"
-	$("button#btn_direct_buy").on("click", function() {
+		//바로구매 id="btn_direct_buy" , id="btn_cart_amount"
+		$("button#btn_direct_buy").on("click", function() {
 
-		let pro_num = $(this).data("pro_num");
-		let cart_amount = $("#btn_cart_amount").val(); 
+			let pro_num = $(this).data("pro_num");
+			let cart_amount = $("#btn_cart_amount").val(); 
 
-		let url = `/order/orderinfo?pro_num=${pro_num}&cart_amount=${cart_amount}`;
+			let url = `/order/orderinfo?pro_num=${pro_num}&cart_amount=${cart_amount}`;
 
-		location.href=url;
+			location.href=url;
 
-	});
+		});
 
 
 
